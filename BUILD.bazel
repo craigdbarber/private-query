@@ -1,0 +1,24 @@
+load("@rules_python//python:defs.bzl", "py_binary", "py_test")
+load("@pip//:requirements.bzl", "requirement")
+load("@rules_python//python:pip.bzl", "compile_pip_requirements")
+load("@rules_uv//uv:venv.bzl", "create_venv")
+
+py_binary(
+    name = "private_query_cli",
+    srcs = ["private_query/main.py"],
+    main = "private_query/main.py",
+    deps = [
+        requirement("chromadb"),
+    ],
+)
+
+compile_pip_requirements(
+    name = "requirements",
+    requirements_in = "requirements.txt",
+    requirements_txt = "requirements_lock.txt",
+)
+
+create_venv(
+    name = "create_venv",
+    requirements_txt = "//:requirements.txt",
+)
