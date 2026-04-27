@@ -5,8 +5,8 @@ load("@rules_uv//uv:venv.bzl", "create_venv")
 
 py_binary(
     name = "private_query_cli",
-    srcs = ["private_query/main.py"],
-    main = "private_query/main.py",
+    srcs = ["src/private_query/main_cli.py"],
+    main = "src/private_query/main_cli.py",
     deps = [
         requirement("chromadb"),
     ],
@@ -20,5 +20,5 @@ compile_pip_requirements(
 
 create_venv(
     name = "create_venv",
-    requirements_txt = "//:requirements.txt",
+    requirements_txt = "//:requirements_lock.txt",
 )
