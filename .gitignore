@@ -2,3 +2,4 @@
 venv
 bazel-*
 *.lock
+.vscode
