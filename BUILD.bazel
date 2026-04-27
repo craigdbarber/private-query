@@ -1,7 +1,24 @@
-load("@rules_python//python:defs.bzl", "py_binary", "py_test")
+load("@rules_python//python:defs.bzl", "py_binary")
 load("@pip//:requirements.bzl", "requirement")
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
 load("@rules_uv//uv:venv.bzl", "create_venv")
+load("//tools:pylint.bzl", "py_lint_test")
+load("//tools:pytest_test.bzl", "pytest_test")
+
+# let bazel manage the requirements_lock.txt
+compile_pip_requirements(
+    name = "requirements",
+    requirements_in = "requirements.txt",
+    requirements_txt = "requirements_lock.txt",
+)
+
+# Create venv for IDE support from requirements_lock.txt
+create_venv(
+    name = "create_venv",
+    requirements_txt = "//:requirements_lock.txt",
+)
+
+exports_files([".pylintrc", "requirements_lock.txt"])
 
 py_binary(
     name = "private_query_cli",
@@ -12,13 +29,18 @@ py_binary(
     ],
 )
 
-compile_pip_requirements(
-    name = "requirements",
-    requirements_in = "requirements.txt",
-    requirements_txt = "requirements_lock.txt",
+pytest_test(
+    name = "private_query_test",
+    srcs = ["src/private_query/private_query_test.py"],
+    deps = [
+        requirement("pytest"),
+    ],
 )
 
-create_venv(
-    name = "create_venv",
-    requirements_txt = "//:requirements_lock.txt",
+py_lint_test(
+    name = "private_query_lint",
+    srcs = glob(["src/**/*.py"]),
 )
+
+
+

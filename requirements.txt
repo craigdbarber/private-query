@@ -1,1 +1,4 @@
 chromadb
+pylint
+pip
+pytest
