@@ -2,3 +2,5 @@ chromadb
 pylint
 pip
 pytest
+more_itertools
+torch

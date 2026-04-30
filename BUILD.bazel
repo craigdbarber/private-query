@@ -1,4 +1,4 @@
-load("@rules_python//python:defs.bzl", "py_binary")
+load("@rules_python//python:defs.bzl", "py_binary", "py_library")
 load("@pip//:requirements.bzl", "requirement")
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
 load("@rules_uv//uv:venv.bzl", "create_venv")
@@ -18,12 +18,25 @@ create_venv(
     requirements_txt = "//:requirements_lock.txt",
 )
 
+py_lint_test(
+    name = "private_query_lint",
+    srcs = glob(["src/**/*.py"]),
+)
+
 exports_files([".pylintrc", "requirements_lock.txt"])
 
 py_binary(
     name = "private_query_cli",
-    srcs = ["src/private_query/main_cli.py"],
-    main = "src/private_query/main_cli.py",
+    srcs = ["src/main_cli.py"],
+    main = "src/main_cli.py",
+    deps = [
+        "private_query",
+    ],
+)
+
+py_library(
+    name = "private_query",
+    srcs = ["src/private_query.py"],
     deps = [
         requirement("chromadb"),
     ],
@@ -31,15 +44,10 @@ py_binary(
 
 pytest_test(
     name = "private_query_test",
-    srcs = ["src/private_query/private_query_test.py"],
+    srcs = ["src/private_query_test.py"],
     deps = [
         requirement("pytest"),
     ],
-)
-
-py_lint_test(
-    name = "private_query_lint",
-    srcs = glob(["src/**/*.py"]),
 )
 
 
