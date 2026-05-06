@@ -430,6 +430,7 @@ httpx==0.28.1 \
     # via
     #   chromadb
     #   huggingface-hub
+    #   ollama
 huggingface-hub==1.12.0 \
     --hash=sha256:7c3fe85e24b652334e5d456d7a812cd9a071e75630fac4365d9165ab5e4a34b6 \
     --hash=sha256:d74939969585ee35748bd66de09baf84099d461bda7287cd9043bfb99b0e424d
@@ -777,6 +778,10 @@ oauthlib==3.3.1 \
     --hash=sha256:0f0f8aa759826a193cf66c12ea1af1637f87b9b4622d46e866952bb022e538c9 \
     --hash=sha256:88119c938d2b8fb88561af5f6ee0eec8cc8d552b7bb1f712743136eb7523b7a1
     # via requests-oauthlib
+ollama==0.6.2 \
+    --hash=sha256:3ad7daab28e5a973445c36a73882a3ef698c2ebb00e21e308652741577509f7d \
+    --hash=sha256:936d55daa684f474364c098611c933626f8d6c7d67065c5b7ae0c477b508b07f
+    # via -r requirements.txt
 onnxruntime==1.25.0 \
     --hash=sha256:00548a16e8f0d52cb1c67ef50177e5e2be848ccffc6db60010ee37faaccbbb6f \
     --hash=sha256:15f220ed2ac4a549c97a31e57f21311add9f13d381f13ed1a52be5b25275038c \
@@ -931,6 +936,21 @@ pluggy==1.6.0 \
     --hash=sha256:7dcc130b76258d33b90f61b658791dede3486c3e6bfb003ee5c9bfb396dd22f3 \
     --hash=sha256:e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746
     # via pytest
+polars==1.40.1 \
+    --hash=sha256:ab2694134b137596b5a59bfd7b4c54ebbc9b59f9403127f18e32d363777552e8 \
+    --hash=sha256:c0f861219d1319cdea45c4ce4d30355a47176b8f98dcedf95ea8269f131b8abd
+    # via -r requirements.txt
+polars-runtime-32==1.40.1 \
+    --hash=sha256:37f3065615d1bf90d03b5326222df4c5c1f8a5d33e50470aa588e3465e6eb814 \
+    --hash=sha256:5987b30e7aa1059d069498496e8dda35afd592b0ac3d46ed87e3ff8df1ad652c \
+    --hash=sha256:8d7f42a8b3f16fc66002cc0f6516f7dd7653396886ae0ed362ab95c0b3408b59 \
+    --hash=sha256:992d14cf191dde043d36fbdbc98a65e43fbc7e9a5024cecd45f838ac4988c1ee \
+    --hash=sha256:b5cbfaf6b085b420b4bfcbe24e8f665076d1cccfdb80c0484c02a023ce205537 \
+    --hash=sha256:b748ef652270cc49e9e69f99a035e0eb4d5f856d42bcd6ac4d9d80a40142aa1e \
+    --hash=sha256:d249b3743e05986060cec0a7aaa542d020df6c6b876e556023a310efd581f9be \
+    --hash=sha256:e5f7becc237a7ec9d9a10878dc8e54b73bbf4e2d94a2991c37d7a0b38590d8f9 \
+    --hash=sha256:f78bb2abd00101cbb23cc0cb068f7e36e081057a15d2ec2dde3dda280709f030
+    # via polars
 protobuf==6.33.6 \
     --hash=sha256:0cd27b587afca21b7cfa59a74dcbd48a50f0a6400cfb59391340ad729d91d326 \
     --hash=sha256:77179e006c476e69bf8e8ce866640091ec42e1beb80b213c3900006ecfba6901 \
@@ -1168,6 +1188,7 @@ pydantic==2.13.3 \
     --hash=sha256:af09e9d1d09f4e7fe37145c1f577e1d61ceb9a41924bf0094a36506285d0a84d
     # via
     #   chromadb
+    #   ollama
     #   pydantic-settings
 pydantic-core==2.46.3 \
     --hash=sha256:0087084960f209a9a4af50ecd1fb063d9ad3658c07bb81a7a53f452dacbfb2ba \
@@ -1402,6 +1423,7 @@ pyyaml==6.0.3 \
     --hash=sha256:fa160448684b4e94d80416c0fa4aac48967a969efe22931448d853ada8baf926 \
     --hash=sha256:fc09d0aa354569bc501d4e787133afc08552722d3ab34836a80547331bb5d4a0
     # via
+    #   -r requirements.txt
     #   chromadb
     #   huggingface-hub
     #   kubernetes

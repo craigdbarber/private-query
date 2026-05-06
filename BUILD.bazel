@@ -19,7 +19,7 @@ create_venv(
 )
 
 py_lint_test(
-    name = "private_query_lint",
+    name = "lint",
     srcs = glob(["src/**/*.py"]),
 )
 
@@ -47,6 +47,15 @@ pytest_test(
     srcs = ["src/private_query_test.py"],
     deps = [
         requirement("pytest"),
+    ],
+)
+
+py_library(
+    name = "chroma_util",
+    srcs = ["src/chroma_util.py"],
+    deps = [
+        requirement("chromadb"),
+        requirement("more_itertools"),
     ],
 )
 

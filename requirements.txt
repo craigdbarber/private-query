@@ -2,5 +2,9 @@ chromadb
 pylint
 pip
 pytest
+pyyaml
 more_itertools
 torch
+polars
+pyyaml
+ollama

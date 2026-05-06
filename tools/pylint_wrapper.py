@@ -1,5 +1,5 @@
 import sys
-import os
+
 from pylint import lint
 
 if __name__ == "__main__":
