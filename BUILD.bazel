@@ -1,52 +1,69 @@
-load("@rules_python//python:defs.bzl", "py_binary", "py_library")
-load("@pip//:requirements.bzl", "requirement")
-load("@rules_python//python:pip.bzl", "compile_pip_requirements")
-load("@rules_uv//uv:venv.bzl", "create_venv")
-load("//tools:pylint.bzl", "py_lint_test")
-load("//tools:pytest_test.bzl", "pytest_test")
+load("@aspect_rules_py//py:defs.bzl", "py_binary", "py_library", "py_test")
 
-# let bazel manage the requirements_lock.txt
-compile_pip_requirements(
-    name = "requirements",
-    requirements_in = "requirements.txt",
-    requirements_txt = "requirements_lock.txt",
+# project setup
+exports_files([
+    "ruff.toml",
+    "pyproject.toml",
+    ".pylintrc",
+    "src/__init__.py",
+    "tests/__init__.py",
+    ".flake8",
+])
+
+# --- Bandit ---
+alias(
+    name = "bandit",
+    actual = "//tools/lint:bandit",
 )
 
-# Create venv for IDE support from requirements_lock.txt
-create_venv(
-    name = "create_venv",
-    requirements_txt = "//:requirements_lock.txt",
+# project targets
+
+py_library(
+    name = "config_util",
+    srcs = ["src/config_util.py"],
+    deps = ["@pypi//pyyaml"],
 )
 
-py_lint_test(
-    name = "lint",
-    srcs = glob(["src/**/*.py"]),
+py_library(
+    name = "device_util",
+    srcs = ["src/device_util.py"],
+    deps = ["@pypi//torch"],
 )
 
-exports_files([".pylintrc", "requirements_lock.txt"])
+py_library(
+    name = "ollama_util",
+    srcs = ["src/ollama_util.py"],
+    deps = ["@pypi//ollama"],
+)
 
 py_binary(
     name = "private_query_cli",
     srcs = ["src/main_cli.py"],
     main = "src/main_cli.py",
     deps = [
-        "private_query",
+        ":private_query_lib",
     ],
 )
 
 py_library(
-    name = "private_query",
+    name = "private_query_lib",
     srcs = ["src/private_query.py"],
     deps = [
-        requirement("chromadb"),
+        ":chroma_util",
+        ":config_util",
+        ":ollama_util",
+        "@pypi//chromadb",
     ],
 )
 
-pytest_test(
-    name = "private_query_test",
-    srcs = ["src/private_query_test.py"],
+py_test(
+    name = "test_private_query",
+    srcs = ["tests/test_private_query.py"],
+    imports = ["."],
+    pytest_main = True,
     deps = [
-        requirement("pytest"),
+        ":private_query_lib",
+        "@pypi//pytest",
     ],
 )
 
@@ -54,10 +71,27 @@ py_library(
     name = "chroma_util",
     srcs = ["src/chroma_util.py"],
     deps = [
-        requirement("chromadb"),
-        requirement("more_itertools"),
+        ":config_util",
+        ":device_util",
+        "@pypi//chromadb",
+        "@pypi//more_itertools",
     ],
 )
 
+# A library-only version of the above to enable linting without incompatible deps
+py_library(
+    name = "chroma_util_lib",
+    srcs = ["src/chroma_util.py"],
+    deps = [":config_util"],
+)
 
-
+py_test(
+    name = "chroma_util_test",
+    srcs = ["src/chroma_util_test.py"],
+    imports = ["."],
+    pytest_main = True,
+    deps = [
+        ":chroma_util",
+        "@pypi//pytest",
+    ],
+)

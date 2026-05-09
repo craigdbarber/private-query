@@ -2,7 +2,7 @@
 
 # Files or directories to be skipped. They should be base names, not
 # paths.
-ignore=venv
+ignore=venv,.venv
 
 # Files or directories matching the regex patterns are skipped. The regex
 # matches against base names, not paths.
@@ -11,7 +11,7 @@ ignore-patterns=
     ^bazel-*#,
     ^BUILD.bazel#,
     ^MODULE.bazel#,
-    ^requirements*#,
+    ^.*\.bzl#,
 
 # Pickle collected data for later comparisons.
 persistent=yes
@@ -37,6 +37,6 @@ disable=
     missing-docstring,
     too-few-public-methods,
     fixme,
-    import-error,
     trailing-whitespace,
-    consider-using-assignment-expr
+    consider-using-assignment-expr,
+    import-error

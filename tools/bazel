@@ -1,0 +1,33 @@
+#!/bin/bash
+# A wrapper script for Bazel that automatically runs formatting before build/test commands.
+# This script is intended to be used with bazelisk.
+
+set -e
+
+# Detect if we are running a command that should trigger formatting.
+# We skip formatting for commands like 'clean', 'info', 'query', or when running the formatter itself.
+# We also skip formatting in CI environments to ensure the build remains read-only.
+COMMAND=$1
+SHOULD_FORMAT=false
+
+if [ "$CI" != "true" ] && [ "$GITHUB_ACTIONS" != "true" ]; then
+    case "$COMMAND" in
+        build|test|run)
+            # Avoid recursive formatting if the target is the formatter itself
+            if [[ "$*" != *"//tools/format"* ]]; then
+                SHOULD_FORMAT=true
+            fi
+            ;;
+    esac
+fi
+
+if [ "$SHOULD_FORMAT" = true ]; then
+    echo "--- Automatically running formatting ---"
+    # We use the 'native' bazel (delegated via this script eventually) to run the format target.
+    # We use --ui_event_filters to keep the output clean.
+    # Note: we use BAZEL_REAL if set (by bazelisk) or just call 'bazel'
+    ${BAZEL_REAL:-bazel} run //tools/format --ui_event_filters=-info,-stdout,-stderr --noshow_progress > /dev/null 2>&1 || echo "Warning: Automatic formatting failed."
+fi
+
+# Delegate to the real Bazel binary
+exec ${BAZEL_REAL:-bazel} "$@"

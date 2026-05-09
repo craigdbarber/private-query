@@ -1,1 +1,0 @@
-exports_files(["pylint_wrapper.py", "pylint.bzl", "pytest_wrapper.py", "pytest_test.bzl"])

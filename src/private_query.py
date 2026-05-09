@@ -13,6 +13,7 @@ class PrivateQuery:
         # Instance variables
         self._chroma_util: ChromaClient
         self._ollama_client: OllamaClient
+        self.myVar = ""
 
         config = config_util.load_yaml_config(PrivateQuery._CONFIG_FILE_PATH)
         chroma_config = config_util.get_config_value(config, "chroma")
