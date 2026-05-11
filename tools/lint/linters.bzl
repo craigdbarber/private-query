@@ -1,18 +1,8 @@
 load("@aspect_rules_lint//lint:bandit.bzl", "lint_bandit_aspect")
 load("@aspect_rules_lint//lint:buildifier.bzl", "lint_buildifier_aspect")
 load("@aspect_rules_lint//lint:flake8.bzl", "lint_flake8_aspect")
-load("@aspect_rules_lint//lint:lint_test.bzl", "lint_test")
 load("@aspect_rules_lint//lint:pylint.bzl", "lint_pylint_aspect")
-load("@aspect_rules_lint//lint:ruff.bzl", "lint_ruff_aspect")
 load("@aspect_rules_lint//lint:ty.bzl", "lint_ty_aspect")
-
-ruff = lint_ruff_aspect(
-    binary = "@aspect_rules_lint//lint:ruff_bin",
-    configs = [
-        Label("@//:pyproject.toml"),
-        Label("@//:ruff.toml"),
-    ],
-)
 
 pylint = lint_pylint_aspect(
     binary = Label("//tools/lint:pylint"),

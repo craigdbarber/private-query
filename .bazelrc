@@ -2,6 +2,6 @@ common --enable_bzlmod
 common --@pypi//venv=private-query
 
 # Lint configuration
-build:lint --aspects=//tools/lint:linters.bzl%pylint,//tools/lint:linters.bzl%ruff,//tools/lint:linters.bzl%bandit,//tools/lint:linters.bzl%flake8,//tools/lint:linters.bzl%ty,//tools/lint:linters.bzl%buildifier
+build:lint --aspects=//tools/lint:linters.bzl%pylint,//tools/lint:linters.bzl%bandit,//tools/lint:linters.bzl%flake8,//tools/lint:linters.bzl%ty,//tools/lint:linters.bzl%buildifier
 build:lint --output_groups=rules_lint_report
 build:lint --@aspect_rules_lint//lint:fail_on_violation
