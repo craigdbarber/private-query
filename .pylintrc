@@ -1,5 +1,7 @@
 [MAIN]
 
+py-version=3.11
+
 # Files or directories to be skipped. They should be base names, not
 # paths.
 ignore=venv,.venv
@@ -39,4 +41,4 @@ disable=
     fixme,
     trailing-whitespace,
     consider-using-assignment-expr,
-    import-error
+    consider-alternative-union-syntax
