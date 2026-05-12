@@ -5,10 +5,8 @@ load("//tools/build:build_defs.bzl", "py_library", "py_test")
 exports_files([
     "ruff.toml",
     "pyproject.toml",
-    ".pylintrc",
     "src/__init__.py",
     "tests/__init__.py",
-    ".flake8",
 ])
 
 # --- Bandit ---
@@ -78,13 +76,6 @@ py_library(
         "@pypi//chromadb",
         "@pypi//more_itertools",
     ],
-)
-
-# A library-only version of the above to enable linting without incompatible deps
-py_library(
-    name = "chroma_util_lib",
-    srcs = ["src/chroma_util.py"],
-    deps = [":config_util"],
 )
 
 py_test(

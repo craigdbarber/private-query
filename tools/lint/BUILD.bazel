@@ -3,30 +3,9 @@ load("@aspect_rules_py//py:defs.bzl", "py_binary")
 exports_files(["linters.bzl"])
 
 py_binary(
-    name = "pylint",
-    srcs = ["pylint_runner.py"],
-    main = "pylint_runner.py",
-    visibility = ["//visibility:public"],
-    imports = ["src", "tests"],
-    deps = [
-        "@pypi//bandit",
-        "@pypi//flake8",
-        "@pypi//pylint",
-    ],
-)
-
-py_binary(
     name = "bandit",
     srcs = ["bandit_runner.py"],
     main = "bandit_runner.py",
     visibility = ["//visibility:public"],
     deps = ["@pypi//bandit"],
-)
-
-py_binary(
-    name = "flake8",
-    srcs = ["flake8_runner.py"],
-    main = "flake8_runner.py",
-    visibility = ["//visibility:public"],
-    deps = ["@pypi//flake8"],
 )
