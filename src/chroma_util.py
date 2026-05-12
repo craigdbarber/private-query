@@ -8,7 +8,7 @@ from chromadb.utils import embedding_functions
 from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
 from more_itertools import batched
 
-from config_util import get_config_value
+from config_util import NestedDict, get_config_str
 from device_util import retrieve_current_accelerator_type
 
 _CHROMA_MAX_BATCH_SIZE = 166
@@ -42,7 +42,7 @@ class ChromaClient:
     function.
     """
 
-    def __init__(self, config: dict[str, dict[str, str] | str]):
+    def __init__(self, config: NestedDict):
         """Intialize new client.
 
         Args:
@@ -54,16 +54,19 @@ class ChromaClient:
         self._embedding_model: SentenceTransformerEmbeddingFunction
 
         # load the config
-        db_type = chroma_type_from_str(str(get_config_value(config, "type")))
+        chroma_type = get_config_str(config, "type")
+        assert chroma_type is not None
+        db_type = chroma_type_from_str(chroma_type)
         if db_type == ChromaType.LOCAL:
-            self._client = chromadb.PersistentClient(
-                str(get_config_value(config, "persist_directory"))
-            )
+            persist_dir = get_config_str(config, "persist_directory")
+            assert persist_dir is not None
+            self._client = chromadb.PersistentClient(path=persist_dir)
         else:
-            raise NotImplementedError(f"Chroma type not supported: ${config['type']}")
+            raise NotImplementedError(f"Chroma type not supported: {chroma_type}")
         # TODO: impemented support for remote type
 
-        embedding_model = get_config_value(config, "embedding_model")
+        embedding_model = get_config_str(config, "embedding_model")
+        assert embedding_model is not None
         self._embedding_func = get_embedding_function(embedding_model)
 
     def get_or_create_collection(
@@ -83,7 +86,9 @@ class ChromaClient:
         if distance_func != "":
             metadata["hnsw:space"] = distance_func
         return self._client.get_or_create_collection(
-            name=name, embedding_function=embedding_func, metadata=metadata
+            name=name,
+            embedding_function=embedding_func,  # type: ignore # ty: ignore
+            metadata=metadata,  # type: ignore # ty: ignore
         )
 
 
@@ -109,7 +114,7 @@ def batched_upsert(
         collection.upsert(
             ids=ids[start_idx:end_idx],
             documents=documents[start_idx:end_idx],
-            metadatas=metadatas[start_idx:end_idx],
+            metadatas=metadatas[start_idx:end_idx],  # type:ignore # ty: ignore # noqa: E501
         )
 
 
