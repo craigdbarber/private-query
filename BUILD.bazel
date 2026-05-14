@@ -3,7 +3,6 @@ load("//tools/build:build_defs.bzl", "py_library", "py_test")
 
 # project setup
 exports_files([
-    "ruff.toml",
     "pyproject.toml",
     "src/__init__.py",
     "tests/__init__.py",
@@ -83,4 +82,9 @@ py_test(
     name = "test_chroma_util",
     srcs = ["tests/test_chroma_util.py"],
     deps = [":chroma_util"],
+)
+
+py_test(
+    name = "test_version",
+    srcs = ["tests/test_version.py"],
 )
