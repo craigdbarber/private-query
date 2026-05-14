@@ -1,10 +1,10 @@
 """Provides utility functionality for loading configuration data."""
 
-from typing import TypeAlias, Union, cast
+from typing import cast
 
 import yaml
 
-NestedDict: TypeAlias = dict[str, Union[str, "NestedDict"]]
+type NestedDict = dict[str, str | NestedDict]
 
 
 def get_config_dict(
