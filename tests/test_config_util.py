@@ -78,6 +78,7 @@ def test_load_yaml_config_returns_none():
 
 
 def test_integration_loading_project_config():
+    """Tests loading a project config."""
     with tempfile.NamedTemporaryFile(mode="w+t") as tmp:
         tmp.write("""
 settings:

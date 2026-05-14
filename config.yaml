@@ -2,7 +2,7 @@ settings:
   chroma:
     # Local persistent client config
     type: "local"
-    persist_directory": "./vector_store"
+    persist_directory: "./vector_store"
     # Remote client config
     # type: "remote"
     # uri: "<chroma_server_uri>"
@@ -10,7 +10,7 @@ settings:
     # The embedding model to use.
     embedding_model: "multi-qa-MiniLM-L6-cos-v1"
   ollama:
-    host: "locahost"
+    host: "localhost"
     #api_key: <your API key"
     model: "llama3.2:latest"
 

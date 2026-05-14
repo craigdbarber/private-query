@@ -17,9 +17,9 @@ class OllamaClient:
         self._client: Client = None
         self._model: str = None
 
-        self._model = config_util.get_config_value(config, "model")
-        host = config_util.get_config_value(config, "host")
-        api_key = config_util.get_config_value(config, "api_key")
+        self._model = config_util.get_config_str(config, "model")
+        host = config_util.get_config_str(config, "host")
+        api_key = config_util.get_config_str(config, "api_key", raise_error=False)
         if api_key is not None:
             self._client = Client(
                 host=host, headers={"Authorization": f"Bearer ${api_key}"}

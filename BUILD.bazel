@@ -75,11 +75,12 @@ py_library(
         ":device_util",
         "@pypi//chromadb",
         "@pypi//more_itertools",
+        "@pypi//sentence_transformers",
     ],
 )
 
 py_test(
-    name = "chroma_util_test",
-    srcs = ["src/chroma_util_test.py"],
+    name = "test_chroma_util",
+    srcs = ["tests/test_chroma_util.py"],
     deps = [":chroma_util"],
 )

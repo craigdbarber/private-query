@@ -3,25 +3,27 @@ name = "private-query"
 version = "0.1.0"
 description = "A solution for embedding private datasets into vector stores and querying against local LLMs."
 readme = "README.md"
-requires-python = ">=3.11"
-dependencies = [
+requires-python = ">=3.11,<3.13"
+
+[dependency-groups]
+main = [
+    "chromadb",
+    "pyyaml",
+    "more-itertools",
+    "torch",
+    "polars",
+    "ollama",
+    "sentence-transformers"
+]
+dev = [
+    { include-group = "main" },
     "pytest",
-    "maturin",
-    "setuptools",
-    "wheel",
-    "hatchling",
     "ruff",
-    "bandit>=1.9.4",
-    "build",
-    "cython>=3.2.4",
-    "setuptools>=82.0.1",
-    "wheel>=0.47.0",
-    "chromadb==0.5.0",
-    "pyyaml>=6.0.3",
-    "more-itertools>=11.0.2",
-    "torch==2.3.1",
-    "polars>=1.40.1",
-    "ollama>=0.6.2",
+    "bandit",
+    "wheel",
+    "maturin",
+    "hatchling",
+    "setuptools"
 ]
 
 [build-system]
@@ -33,3 +35,10 @@ packages = ["src"]
 
 [tool.bandit]
 skips = ["B101"]
+
+[tool.uv]
+environments = [
+    "sys_platform == 'darwin'",
+    "sys_platform == 'linux'",
+    "sys_platform == 'win32'"
+]
