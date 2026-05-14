@@ -3,7 +3,7 @@ name = "private-query"
 version = "0.1.0"
 description = "A solution for embedding private datasets into vector stores and querying against local LLMs."
 readme = "README.md"
-requires-python = ">=3.11,<3.13"
+requires-python = ">=3.12,<3.13"
 
 [dependency-groups]
 main = [
@@ -23,7 +23,9 @@ dev = [
     "wheel",
     "maturin",
     "hatchling",
-    "setuptools"
+    "setuptools",
+    "cython>=3.2.4",
+    "puccinialin"
 ]
 
 [build-system]
@@ -42,3 +44,14 @@ environments = [
     "sys_platform == 'linux'",
     "sys_platform == 'win32'"
 ]
+
+[tool.ty.src]
+include = ["src", "tests"]
+exclude = [".venv", "bazel*"]
+
+[tool.ruff]
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP", "S", "D"]
+ignore = ["S101", "D203", "D213", "D205", "I001"]

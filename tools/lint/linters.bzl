@@ -5,7 +5,7 @@ load("@aspect_rules_lint//lint:ty.bzl", "lint_ty_aspect")
 
 ruff = lint_ruff_aspect(
     binary = "@aspect_rules_lint//lint:ruff_bin",
-    configs = [Label("//:ruff.toml")],
+    configs = [Label("//:pyproject.toml")],
 )
 
 bandit = lint_bandit_aspect(
