@@ -29,12 +29,6 @@ py_test(
 )
 
 py_library(
-    name = "device_util",
-    srcs = ["src/device_util.py"],
-    deps = ["@pypi//torch"],
-)
-
-py_library(
     name = "ollama_util",
     srcs = ["src/ollama_util.py"],
     deps = ["@pypi//ollama"],
@@ -71,10 +65,10 @@ py_library(
     srcs = ["src/chroma_util.py"],
     deps = [
         ":config_util",
-        ":device_util",
         "@pypi//chromadb",
         "@pypi//more_itertools",
         "@pypi//sentence_transformers",
+        "@pypi//torch",
     ],
 )
 
