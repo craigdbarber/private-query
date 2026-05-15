@@ -55,3 +55,12 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["E", "F", "I", "W", "UP", "S", "D"]
 ignore = ["S101", "D203", "D213", "D205", "I001"]
+
+[tool.pytest.ini_options]
+# Add directories you want to completely skip during test discovery
+norecursedirs = [
+    ".venv",
+    ".git",
+    "bazel-*",
+    "bazel-out"
+]
