@@ -34,6 +34,18 @@ py_library(
     deps = ["@pypi//ollama"],
 )
 
+py_test(
+    name = "test_ollama_util",
+    srcs = ["tests/test_ollama_util.py"],
+    deps = [
+        ":ollama_util",
+        ":config_util",
+    ],
+    data = ["scripts/start_ollama.sh", "scripts/stop_ollama.sh"],
+    # TBD: to see if its feasible to run this in CI
+    tags = ["manual"],
+)
+
 py_binary(
     name = "private_query_cli",
     srcs = ["src/main_cli.py"],
