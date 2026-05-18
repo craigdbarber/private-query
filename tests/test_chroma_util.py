@@ -1,6 +1,8 @@
 """Tests chroma_util."""
 
 import tempfile
+from collections.abc import Generator
+from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
@@ -8,13 +10,17 @@ import pytest
 from chroma_util import _CHROMA_MAX_BATCH_SIZE, ChromaClient, batched_upsert
 from config_util import NestedDict, load_yaml_config
 
+
 # The test chroma client for the session
-_chroma_client: ChromaClient
+@dataclass
+class _SessionData:
+    client: ChromaClient
 
 
-@pytest.fixture(scope="session", autouse=True)
-def suite_setup_teardown():
+@pytest.fixture(scope="session", name="session_data")
+def suite_setup_teardown() -> Generator[_SessionData, None, None]:
     """Set up chroma client for test session."""
+    # suite setup
     tmp_persist_dir = tempfile.TemporaryDirectory()
     tmp_persist_dir_path = Path(tmp_persist_dir.name)
     tmp_cache_dir = tempfile.TemporaryDirectory()
@@ -32,36 +38,39 @@ model_cache_directory: "{tmp_cache_dir_path}"
         assert chroma_config is not None
         client = ChromaClient(chroma_config)
         assert client is not None
-        global _chroma_client
-        _chroma_client = client
 
-    yield
+    yield _SessionData(client=client)
 
+    # suite teardown
     tmp_persist_dir.cleanup()
     tmp_cache_dir.cleanup()
 
 
-def test_client_setup():
+def test_client_setup(session_data: _SessionData):
     """Test client is successfully setup."""
-    assert _chroma_client is not None
+    client = session_data.client
+    assert client is not None
+    assert client.is_alive()
 
 
-def test_get_or_create_collection():
+def test_get_or_create_collection(session_data: _SessionData):
     """Test get_or_create_collection."""
-    collection = _chroma_client.get_or_create_collection("test_collection")
+    client = session_data.client
+    collection = client.get_or_create_collection("test_collection")
     assert collection is not None
     assert collection.name == "test_collection"
-    other_collection = _chroma_client.get_or_create_collection("other_collection")
+    other_collection = client.get_or_create_collection("other_collection")
     assert other_collection is not None
     assert other_collection.name == "other_collection"
-    same_collection = _chroma_client.get_or_create_collection("test_collection")
+    same_collection = client.get_or_create_collection("test_collection")
     assert same_collection is not None
     assert same_collection.name == "test_collection"
 
 
-def test_batched_upsert():
+def test_batched_upsert(session_data: _SessionData):
     """Test batched_upsert."""
-    collection = _chroma_client.get_or_create_collection("test_collection1")
+    client = session_data.client
+    collection = client.get_or_create_collection("test_collection1")
     docs: list[str] = []
     metadatas: list[dict[str, str]] = []
     ids: list[str] = []

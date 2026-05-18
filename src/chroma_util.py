@@ -93,6 +93,11 @@ class ChromaClient:
             metadata=metadata if metadata else None,  # type: ignore # ty: ignore
         )
 
+    def is_alive(self) -> bool:
+        """Return whether the client connection is alive."""
+        time = self._client.heartbeat()
+        return time is not None
+
 
 def batched_upsert(
     collection: Collection,
