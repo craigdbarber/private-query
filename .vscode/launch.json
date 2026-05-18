@@ -15,6 +15,9 @@
             "skipFiles": [
                 "${workspaceFolder}/bazel-*/**",
                 "**/bazel-out/**"
+            ],
+            "args": [
+                "${file}"
             ]
         }
     ]
