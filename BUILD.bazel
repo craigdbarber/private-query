@@ -17,6 +17,13 @@ alias(
 # project targets
 
 py_library(
+    name = "test_util",
+    srcs = ["tests/test_util.py"],
+    deps = ["@pypi//psutil"],
+    data = ["scripts/start_ollama.sh"],
+)
+
+py_library(
     name = "config_util",
     srcs = ["src/config_util.py"],
     deps = ["@pypi//pyyaml"],
@@ -40,8 +47,8 @@ py_test(
     deps = [
         ":ollama_util",
         ":config_util",
+        ":test_util",
     ],
-    data = ["scripts/start_ollama.sh", "scripts/stop_ollama.sh"],
     # TBD: to see if its feasible to run this in CI
     tags = ["manual"],
 )
@@ -62,6 +69,7 @@ py_library(
         ":chroma_util",
         ":config_util",
         ":ollama_util",
+        ":test_util",
         "@pypi//chromadb",
     ],
 )
@@ -69,7 +77,12 @@ py_library(
 py_test(
     name = "test_private_query",
     srcs = ["tests/test_private_query.py"],
-    deps = [":private_query_lib"],
+    deps = [
+        ":private_query_lib",
+        ":chroma_util",
+        ":ollama_util",
+        ":config_util",
+    ],
 )
 
 py_library(

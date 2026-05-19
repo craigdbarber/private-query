@@ -15,14 +15,12 @@ from config_util import NestedDict, get_config_str
 _CHROMA_MAX_BATCH_SIZE = 166
 
 
-class ChromaType(StrEnum):
-    """An enum defining supported types in the configuration."""
-
+class _ChromaType(StrEnum):
     LOCAL = "local"
     REMOTE = "remote"
 
 
-def _chroma_type_from_str(value: str) -> ChromaType:
+def _chroma_type_from_str(value: str) -> _ChromaType:
     """Parse a configuration chroma type from the specified string.
     Raises a ValueError if undefined.
 
@@ -31,10 +29,10 @@ def _chroma_type_from_str(value: str) -> ChromaType:
     Returns: The parsed configuration chroma type.
 
     """
-    if value == ChromaType.LOCAL:
-        return ChromaType.LOCAL
-    if value == ChromaType.REMOTE:
-        return ChromaType.REMOTE
+    if value == _ChromaType.LOCAL:
+        return _ChromaType.LOCAL
+    if value == _ChromaType.REMOTE:
+        return _ChromaType.REMOTE
     raise ValueError(f"Failed to parse chroma type: ${value}")
 
 
@@ -59,7 +57,7 @@ class ChromaClient:
         chroma_type = get_config_str(config, "type")
         assert chroma_type is not None
         db_type = _chroma_type_from_str(chroma_type)
-        if db_type == ChromaType.LOCAL:
+        if db_type == _ChromaType.LOCAL:
             persist_dir = get_config_str(config, "persist_directory")
             assert persist_dir is not None
             self._client = PersistentClient(path=persist_dir)
