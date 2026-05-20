@@ -49,14 +49,14 @@ ollama:
     # load chroma client
     config = load_yaml_config(str(tmp_config.absolute()))
     chroma_config = get_config_dict(config, "chroma")
-    assert chroma_config is not None
+    assert chroma_config
     chroma = ChromaClient(chroma_config)
 
     # load ollama
     ollama_home = tmp_path_factory.mktemp("ollama_home")
     start_local_ollama(ollama_host, ollama_home)
     ollama_config = get_config_dict(config, "ollama")
-    assert ollama_config is not None
+    assert ollama_config
     ollama = OllamaClient(ollama_config)
 
     yield _SessionData(PrivateQuery(chroma=chroma, ollama=ollama), chroma=chroma)
@@ -65,7 +65,7 @@ ollama:
 
 
 def test_embed_documents(session_data: _SessionData, tmp_path: Path):
-    """Test embed_vector_data."""
+    """Test embed_vector_documents."""
     word_pool = [
         "apple",
         "sunny",
