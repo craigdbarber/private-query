@@ -17,6 +17,21 @@ alias(
 # project targets
 
 py_library(
+    name = "transformer_util",
+    srcs = ["src/transformer_util.py"],
+    deps = [
+        "@pypi//pypdf",
+        "@pypi//python-docx",
+    ],
+)
+
+py_test(
+    name = "test_transformer_util",
+    srcs = ["tests/test_transformer_util.py"],
+    deps = [":transformer_util"],
+)
+
+py_library(
     name = "test_util",
     srcs = ["tests/test_util.py"],
     deps = ["@pypi//psutil"],
@@ -94,6 +109,7 @@ py_library(
         "@pypi//more_itertools",
         "@pypi//sentence_transformers",
         "@pypi//torch",
+        "@pypi//transformers",
     ],
 )
 

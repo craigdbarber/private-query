@@ -1,13 +1,9 @@
 """Contains the core business logic of the private query system."""
 
 from pathlib import Path
-from typing import Final
 
-from chroma_util import ChromaClient, batched_upsert
+from chroma_util import ChromaClient
 from ollama_util import OllamaClient
-
-TEXT_CHUNK_SIZE: Final[int] = 1000
-TEXT_CHUNK_OVERLAP: Final[int] = 100
 
 
 class PrivateQuery:
@@ -27,10 +23,10 @@ class PrivateQuery:
         self._chroma = chroma
         self._ollama = ollama
 
-    def embed_vector_data(
+    def embed_documents(
         self, collection_name: str, document_paths: list[Path]
     ) -> list[str]:
-        """Embed data into the vector db.
+        """Embed the specified documents into the chroma db.
 
         Args:
             collection_name: The name of the collection the data is to be embedded into.
@@ -47,23 +43,18 @@ class PrivateQuery:
             with open(path, encoding="UTF-8") as file:
                 text = file.read()
                 file_path = str(Path(file.name))
-                if len(text) > TEXT_CHUNK_SIZE:
-                    chunks = chunk_text(text)
-                    chunk_count = 0
-                    for chunk in chunks:
-                        docs.append(chunk)
-                        ids.append(f"id_{file_path}_{chunk_count}")
-                        metadatas.append({"path:": file_path})
-                        chunk_count += 1
-                else:
-                    docs.append(file.read())
-                    ids.append(f"id_{file_path}")
-                    metadatas.append({"path": file_path})
+                chunks = self._chroma.chunk_text_by_tokens(text)
+                for idx, chunk in enumerate(chunks):
+                    docs.append(chunk)
+                    ids.append(f"id_{file_path}_{idx}")
+                    metadatas.append({"path:": file_path})
 
         # batch upsert the docs
-        collection = self._chroma.get_or_create_collection(collection_name)
-        batched_upsert(
-            collection=collection, documents=docs, ids=ids, metadatas=metadatas
+        self._chroma.batched_upsert(
+            collection_name=collection_name,
+            documents=docs,
+            ids=ids,
+            metadatas=metadatas,
         )
 
         return ids
@@ -75,35 +66,3 @@ class PrivateQuery:
         # execute the query against the LLM
         # TODO: implement me
         raise NotImplementedError()
-
-
-def chunk_text(text: str) -> list[str]:
-    """Split the specified text into overlapping chunks for better LLM performance.
-
-    Args:
-        text: The text to be chunked.
-    Returns: A list of the generated text chunks.
-
-    """
-    chunks: list[str] = []
-    start_index = 0
-    while start_index < len(text):
-        end_index = (
-            start_index + TEXT_CHUNK_SIZE
-            if start_index + TEXT_CHUNK_SIZE < len(text)
-            else len(text)
-        )
-        chunk = text[start_index:end_index]
-        # prefer clean sentence breaks
-        if end_index < len(text):
-            last_period_index = chunk.rfind(".")
-            if last_period_index > start_index + TEXT_CHUNK_SIZE / 2:
-                end_index = start_index + last_period_index + 1
-                chunk = text[start_index:end_index]
-        chunks.append(chunk.strip())
-        start_index = (
-            end_index - TEXT_CHUNK_OVERLAP if end_index < len(text) else end_index
-        )
-
-    # drop empty chunks
-    return [chunk for chunk in chunks if chunk]  # say that ten times fast ;)

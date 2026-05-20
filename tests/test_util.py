@@ -5,7 +5,6 @@ import shlex
 import subprocess
 import time
 from pathlib import Path
-from tempfile import TemporaryDirectory
 
 import psutil
 
@@ -40,7 +39,7 @@ def load_test_resource(name: str) -> Path:
     raise FileNotFoundError(f"Failed to load test resource: {name}.")
 
 
-def start_local_ollama(host: str, home_dir: TemporaryDirectory):
+def start_local_ollama(host: str, home_dir: Path):
     """Start a local ollama server for testing.
 
     Args:
@@ -48,6 +47,9 @@ def start_local_ollama(host: str, home_dir: TemporaryDirectory):
         home_dir: The home directory for ollama configuration.
 
     """
+    if is_process_running("ollama"):
+        return
+
     start_script_path = load_test_resource("scripts/start_ollama.sh")
     subprocess.run(  # noqa: S603
         [
@@ -55,20 +57,28 @@ def start_local_ollama(host: str, home_dir: TemporaryDirectory):
             "--host",
             shlex.quote(host),
             "--ollama_home_dir",
-            shlex.quote(str(Path(home_dir.name))),
+            shlex.quote(str(home_dir)),
         ],
         check=True,
     )
     # verify ollama is running before returning
     while True:
-        ollama_running = any(
-            "ollama" in proc.info["name"].lower()
-            for proc in psutil.process_iter(["name"])
-        )
-
-        if ollama_running:
+        if is_process_running("ollama"):
             break
         time.sleep(2)
+
+
+def is_process_running(name: str) -> bool:
+    """Return whether a process with the specified name is running.
+
+    Args:
+        name: The name of the process.
+    Returns: Whether the process is running.
+
+    """
+    return any(
+        name in proc.info["name"].lower() for proc in psutil.process_iter(["name"])
+    )
 
 
 def stop_process(name: str) -> bool:
@@ -79,9 +89,6 @@ def stop_process(name: str) -> bool:
     Returns: Whether the process was successfully stopped.
 
     """
-    # stop_script_path = load_test_resource("scripts/stop_ollama.sh")
-    # assert stop_script_path.exists()
-    # subprocess.run([str(stop_script_path)], check=True)  # noqa: S603
     stopped = False
     for proc in psutil.process_iter(["name", "pid"]):
         try:

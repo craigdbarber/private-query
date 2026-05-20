@@ -1,5 +1,7 @@
 """A module providing utility functionality for ollama."""
 
+from typing import Any
+
 from ollama import Client
 
 from config_util import NestedDict, get_config_str
@@ -22,17 +24,15 @@ class OllamaClient:
         self._model: str
 
         model = get_config_str(config, "model")
-        assert model is not None
+        assert model
         self._model = model
         host = get_config_str(config, "host")
-        assert host is not None
+        assert host
+        kwargs: dict[str, Any] = {}
         api_key = get_config_str(config, "api_key", raise_error=False)
         if api_key is not None:
-            self._client = Client(
-                host=host, headers={"Authorization": f"Bearer ${api_key}"}
-            )
-        else:
-            self._client = Client(host)
+            kwargs["headers"] = {"Authorization": f"Bearer ${api_key}"}
+        self._client = Client(host=host, **kwargs)
         self._client.pull(self._model)
 
     def contains_model(self, model: str) -> bool:
