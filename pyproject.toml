@@ -29,7 +29,8 @@ dev = [
     "hatchling",
     "setuptools",
     "cython>=3.2.4",
-    "puccinialin"
+    "puccinialin",
+    "bazel-runfiles>=2.0.1",
 ]
 
 [build-system]
@@ -61,6 +62,8 @@ select = ["E", "F", "I", "W", "UP", "S", "D"]
 ignore = ["S101", "D203", "D213", "D205", "I001"]
 
 [tool.pytest.ini_options]
+pythonpath = ["tests", "src"]
+
 # Add directories you want to completely skip during test discovery
 norecursedirs = [
     ".venv",

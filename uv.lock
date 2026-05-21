@@ -68,6 +68,14 @@ wheels = [
 ]
 
 [[package]]
+name = "bazel-runfiles"
+version = "2.0.1"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/47/6e/4ae69d9e1eebc517e7a19e711fcb0c093c9a9b23c8ec31ae92fad430a13a/bazel_runfiles-2.0.1-py3-none-any.whl", hash = "sha256:bcd10a7eb418140575039eeb2446ba4d64bf82ff52ac0f9cfb34c3d7d4277705", size = 8612, upload-time = "2026-05-10T14:19:37.497Z" },
+]
+
+[[package]]
 name = "bcrypt"
 version = "5.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1039,6 +1047,7 @@ source = { editable = "." }
 [package.dev-dependencies]
 dev = [
     { name = "bandit", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
+    { name = "bazel-runfiles", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "chromadb", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "cython", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "hatchling", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
@@ -1078,6 +1087,7 @@ main = [
 [package.metadata.requires-dev]
 dev = [
     { name = "bandit" },
+    { name = "bazel-runfiles", specifier = ">=2.0.1" },
     { name = "chromadb" },
     { name = "cython", specifier = ">=3.2.4" },
     { name = "hatchling" },

@@ -34,8 +34,11 @@ py_test(
 py_library(
     name = "test_util",
     srcs = ["tests/test_util.py"],
-    deps = ["@pypi//psutil"],
     data = ["scripts/start_ollama.sh"],
+    deps = [
+        "@pypi//bazel_runfiles",
+        "@pypi//psutil",
+    ],
 )
 
 py_library(
@@ -59,13 +62,13 @@ py_library(
 py_test(
     name = "test_ollama_util",
     srcs = ["tests/test_ollama_util.py"],
-    deps = [
-        ":ollama_util",
-        ":config_util",
-        ":test_util",
-    ],
     # TBD: to see if its feasible to run this in CI
     tags = ["manual"],
+    deps = [
+        ":config_util",
+        ":ollama_util",
+        ":test_util",
+    ],
 )
 
 py_binary(
@@ -92,11 +95,12 @@ py_library(
 py_test(
     name = "test_private_query",
     srcs = ["tests/test_private_query.py"],
+    data = glob(["tests/data/*.txt"]),
     deps = [
-        ":private_query_lib",
         ":chroma_util",
-        ":ollama_util",
         ":config_util",
+        ":ollama_util",
+        ":private_query_lib",
     ],
 )
 

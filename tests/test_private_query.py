@@ -1,12 +1,10 @@
 """A test suite for the private-query module."""
 
-import random
 from collections.abc import Generator
 from dataclasses import dataclass
-from pathlib import Path
 
 import pytest
-from test_util import start_local_ollama, stop_process
+from test_util import load_test_data_dir, start_local_ollama, stop_process
 
 from chroma_util import ChromaClient
 from config_util import get_config_dict, load_yaml_config
@@ -64,37 +62,22 @@ ollama:
     stop_process("ollama")
 
 
-def test_embed_documents(session_data: _SessionData, tmp_path: Path):
-    """Test embed_vector_documents."""
-    word_pool = [
-        "apple",
-        "sunny",
-        "mountain",
-        "shadow",
-        "galaxy",
-        "breeze",
-        "ocean",
-        "river",
-    ]
+def test_embed_documents(session_data: _SessionData):
+    """Test embed_documents."""
+    test_data_dir = load_test_data_dir("tests/data")
+    test_txt_files = list(test_data_dir.glob("*.txt"))
+    assert test_txt_files and len(test_txt_files) > 0
     collection_name = "test_collection123"
-    doc_paths: list[Path] = []
-    file_idx = 0
-    file_count = 100
-    while file_idx < file_count:
-        tmp_file = tmp_path / f"tmp_file_{file_idx}.txt"
-        tmp_file.write_text(" ".join(random.choices(word_pool, k=500)))  # noqa: S311
-        doc_paths.append(tmp_file.absolute())
-        file_idx += 1
 
     ids = session_data.private_query.embed_documents(
-        collection_name=collection_name, document_paths=doc_paths
+        collection_name=collection_name, document_paths=test_txt_files
     )
-
     collection = session_data.chroma.get_or_create_collection(collection_name)
     result = collection.get(ids)
     result_docs = result["documents"]
+
     assert result_docs
-    assert len(result_docs) >= file_count
+    assert len(result_docs) >= len(test_txt_files)
     for doc in result_docs:
         assert str(doc.encode(encoding="UTF-8"))
     result_ids = result["ids"]

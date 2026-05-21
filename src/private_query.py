@@ -49,7 +49,6 @@ class PrivateQuery:
                     ids.append(f"id_{file_path}_{idx}")
                     metadatas.append({"path:": file_path})
 
-        # batch upsert the docs
         self._chroma.batched_upsert(
             collection_name=collection_name,
             documents=docs,

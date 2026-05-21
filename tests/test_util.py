@@ -7,36 +7,51 @@ import time
 from pathlib import Path
 
 import psutil
+from runfiles import runfiles
 
 
-def load_test_resource(name: str) -> Path:
-    """Load test resource matching the specified name. Handles cases of either
-    running in bazel or via direct pytest invocation.
+def load_test_data_dir(data_dir: str | None = None) -> Path:
+    """Load a target directory supporting execution from both bazel and pytest.
 
     Args:
-        name: The name of the resource to be loaded. Assumes the name to be unique.
+        data_dir: The relative path of the directory to be loaded (e.g., "tests/data").
+                  If None or empty, returns the project root directory.
+    Returns: The requested data dir, or the project root directory.
 
-    Returns: The path of the requested resource.
-    Raises: A FileNoneFoundError if the requested resource isn't found.
+    Raises:
+        FileNotFoundError: If the specified relative path does not exist.
 
     """
-    runfiles_dir = os.environ.get("RUNFILES_DIR")
-    project_path = Path(__file__).parent.parent
+    # check if running under bazel
+    if "RUNFILES_DIR" in os.environ or "RUNFILES_MANIFEST_FILE" in os.environ:
+        rf = runfiles.Create()
+        assert rf
+        current_repo = rf.CurrentRepository()
+        repo_root = current_repo if current_repo else "_main"
+        if data_dir:
+            runfiles_path = rf.Rlocation(f"{repo_root}/{data_dir}")
+            if (
+                runfiles_path
+                and os.path.exists(runfiles_path)
+                and os.path.isdir(runfiles_path)
+            ):
+                return Path(runfiles_path).resolve()
+        else:
+            root_path = rf.Rlocation(repo_root)
+            if root_path and os.path.exists(root_path):
+                return Path(root_path).resolve()
 
-    # if running in bazel
-    if runfiles_dir:
-        runfiles_dir_path = Path(runfiles_dir)
-        assert runfiles_dir_path is not None and runfiles_dir_path.exists()
-        for resource in runfiles_dir_path.rglob(name):
-            assert resource is not None and resource.exists()
-            return resource
-    # if running pytest directly
-    elif project_path:
-        resource = project_path / name
-        assert resource is not None and resource.exists()
-        return resource
+    # fallback to standard pytest exeuction from the project root
+    project_root = Path(__file__).parent.parent
+    if data_dir:
+        data_dir_path = project_root / data_dir
+        if data_dir_path.exists() and data_dir_path.is_dir():
+            return data_dir_path.resolve()
+    else:
+        return project_root.resolve()
 
-    raise FileNotFoundError(f"Failed to load test resource: {name}.")
+    # if the specified data directory could not be found, raise an error
+    raise FileNotFoundError(f"Failed to load test directory: {data_dir}")
 
 
 def start_local_ollama(host: str, home_dir: Path):
@@ -50,7 +65,9 @@ def start_local_ollama(host: str, home_dir: Path):
     if is_process_running("ollama"):
         return
 
-    start_script_path = load_test_resource("scripts/start_ollama.sh")
+    scripts_dir_path = load_test_data_dir("scripts")
+    start_script_path = (scripts_dir_path / "start_ollama.sh").resolve()
+    # start_script_path = load_test_resource("scripts/start_ollama.sh")
     subprocess.run(  # noqa: S603
         [
             str(start_script_path),
