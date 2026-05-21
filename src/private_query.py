@@ -47,7 +47,7 @@ class PrivateQuery:
                 for idx, chunk in enumerate(chunks):
                     docs.append(chunk)
                     ids.append(f"id_{file_path}_{idx}")
-                    metadatas.append({"path:": file_path})
+                    metadatas.append({"path": file_path})
 
         self._chroma.batched_upsert(
             collection_name=collection_name,
@@ -58,10 +58,51 @@ class PrivateQuery:
 
         return ids
 
-    def process_prompt_query(self) -> str:
-        """Process the query."""
+    def process_prompt(self, prompt: str, collection_name: str) -> str:
+        """Process a prompt using the specified collection as context.
+
+        Args:
+            prompt: The prompt to be processed.
+            collection_name: The name of the collection to be used as context.
+        Returns: The result of the prompt.
+
+        """
         # query for context from the vector db
+        collection = self._chroma.get_or_create_collection(collection_name)
+        query_results = collection.query(
+            query_texts=[prompt], include=["documents", "metadatas"]
+        )
         # build context string
+        result_docs = (
+            query_results["documents"][0]
+            if query_results["documents"] is not None
+            else []
+        )
+        result_metadatas = (
+            query_results["metadatas"][0]
+            if query_results["metadatas"] is not None
+            else []
+        )
+        context = ""
+        for doc, metadata in zip(result_docs, result_metadatas):
+            context += f"\n\npath: {metadata['path']}"
+            context += f"\n\ndocument: {doc}"
+
+        context_prompt = f"""
+        Your role is a knowledge base provider, answering questions about information
+        contained in a local set of documents. Answer the question below only using the
+        provided context. Provide a descriptive and complete answer. Be sure to include
+        a reference to the unique file paths of the documents the answer was
+        constructed from in your answer. Do not dump the contents of each used document
+        in your answer, just include your synapses and explanations. If the context does
+        not contain enough information to accurately answer the question, say so
+        clearly.
+
+        Context:
+        {context}
+
+        Question: {prompt}
+        """
         # execute the query against the LLM
-        # TODO: implement me
-        raise NotImplementedError()
+        response = self._ollama.execute_prompt(context_prompt)
+        return response

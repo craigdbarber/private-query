@@ -67,7 +67,7 @@ def test_embed_documents(session_data: _SessionData):
     test_data_dir = load_test_data_dir("tests/data")
     test_txt_files = list(test_data_dir.glob("*.txt"))
     assert test_txt_files and len(test_txt_files) > 0
-    collection_name = "test_collection123"
+    collection_name = "test_embed_documents"
 
     ids = session_data.private_query.embed_documents(
         collection_name=collection_name, document_paths=test_txt_files
@@ -83,3 +83,25 @@ def test_embed_documents(session_data: _SessionData):
     result_ids = result["ids"]
     assert result_ids
     assert ids.sort() == result_ids.sort()
+
+
+def test_process_prompt(session_data: _SessionData):
+    """Test process prompt."""
+    test_data_dir = load_test_data_dir("tests/data")
+    test_txt_files = list(test_data_dir.glob("*.txt"))
+    assert test_txt_files and len(test_txt_files) > 0
+    collection_name = "test_process_prompt"
+
+    session_data.private_query.embed_documents(
+        collection_name=collection_name, document_paths=test_txt_files
+    )
+
+    response = session_data.private_query.process_prompt(
+        prompt="How much memory did the Apple II come with standard?",
+        collection_name=collection_name,
+    )
+    assert response
+
+
+if __name__ == "__main__":
+    pytest.main()
