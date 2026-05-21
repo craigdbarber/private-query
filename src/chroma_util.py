@@ -56,7 +56,7 @@ class ChromaClient:
 
         # load the config
         chroma_type = get_config_str(config, "type")
-        assert chroma_type is not None
+        assert chroma_type
         db_type = _chroma_type_from_str(chroma_type)
         if db_type == _ChromaType.LOCAL:
             persist_dir = get_config_str(config, "persist_directory")
@@ -64,7 +64,7 @@ class ChromaClient:
             self._client = PersistentClient(path=persist_dir)
         else:
             raise NotImplementedError(f"Chroma type not supported: {chroma_type}")
-        # TODO: impemented support for remote type
+            # TODO: impemented support for remote type
 
         embedding_model = get_config_str(config, "embedding_model")
         assert embedding_model
@@ -76,7 +76,7 @@ class ChromaClient:
         )
 
     def get_or_create_collection(
-        self, name: str, distance_func: str = ""
+        self, name: str, distance_func: str | None = None
     ) -> Collection:
         """Get or create a collection.
 
@@ -86,8 +86,8 @@ class ChromaClient:
         Returns: The exising or created collection.
 
         """
-        metadata = {}
-        if distance_func != "":
+        metadata: dict[str, str] = {}
+        if distance_func:
             metadata["hnsw:space"] = distance_func
         return self._client.get_or_create_collection(
             name=name,
@@ -107,7 +107,8 @@ class ChromaClient:
         metadatas: list[dict],
         ids: list[str],
     ) -> None:
-        """Perform batched upserts of the specified documents into the specified collection.
+        """Perform batched upserts of the specified documents into the specified
+        collection.
 
         Args:
             collection_name: The name of the collection to be modified.
@@ -181,7 +182,7 @@ def _get_embedding_function(
         "token": False,
     }
     system_device = torch.accelerator.current_accelerator(check_available=True)
-    if system_device is not None:
+    if system_device:
         kwargs["device"] = str(system_device)
     return embedding_functions.SentenceTransformerEmbeddingFunction(
         model_name=model, **kwargs
