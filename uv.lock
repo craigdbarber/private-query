@@ -1066,6 +1066,7 @@ dev = [
     { name = "setuptools", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "torch", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "transformers", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
+    { name = "typer", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "wheel", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
 ]
 main = [
@@ -1080,6 +1081,7 @@ main = [
     { name = "sentence-transformers", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "torch", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "transformers", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
+    { name = "typer", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
 ]
 
 [package.metadata]
@@ -1106,6 +1108,7 @@ dev = [
     { name = "setuptools" },
     { name = "torch" },
     { name = "transformers", specifier = ">=5.8.1" },
+    { name = "typer", specifier = ">=0.25.1" },
     { name = "wheel" },
 ]
 main = [
@@ -1120,6 +1123,7 @@ main = [
     { name = "sentence-transformers" },
     { name = "torch" },
     { name = "transformers", specifier = ">=5.8.1" },
+    { name = "typer", specifier = ">=0.25.1" },
 ]
 
 [[package]]

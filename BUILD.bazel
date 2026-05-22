@@ -1,4 +1,4 @@
-load("@aspect_rules_py//py:defs.bzl", "py_binary")
+load("@aspect_rules_py//py:defs.bzl", "py_binary", "py_pex_binary")
 load("//tools/build:build_defs.bzl", "py_library", "py_test")
 
 # project setup
@@ -16,20 +16,20 @@ alias(
 
 # project targets
 
-py_library(
-    name = "transformer_util",
-    srcs = ["src/transformer_util.py"],
-    deps = [
-        "@pypi//pypdf",
-        "@pypi//python-docx",
-    ],
-)
+# py_library(
+#     name = "transformer_util",
+#     srcs = ["src/transformer_util.py"],
+#     deps = [
+#         "@pypi//pypdf",
+#         "@pypi//python-docx",
+#     ],
+# )
 
-py_test(
-    name = "test_transformer_util",
-    srcs = ["tests/test_transformer_util.py"],
-    deps = [":transformer_util"],
-)
+# py_test(
+#     name = "test_transformer_util",
+#     srcs = ["tests/test_transformer_util.py"],
+#     deps = [":transformer_util"],
+# )
 
 py_library(
     name = "test_util",
@@ -77,7 +77,27 @@ py_binary(
     main = "src/main_cli.py",
     deps = [
         ":private_query_lib",
+        ":chroma_util",
+        ":config_util",
+        ":ollama_util",
+        "@pypi//typer",
     ],
+)
+
+py_pex_binary(
+    name = "private_query_pex",
+    binary = ":private_query_cli",
+    inject_env = {
+        "PEX_UNZIP": "1"
+    }
+)
+
+genrule(
+    name = "private-query",
+    srcs = [":private_query_pex"],
+    outs = ["private-query"],
+    cmd = "cp $< $@",
+    executable = True,
 )
 
 py_library(

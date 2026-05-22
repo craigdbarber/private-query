@@ -4,7 +4,7 @@ from collections.abc import Generator
 from dataclasses import dataclass
 
 import pytest
-from test_util import start_local_ollama, stop_process
+from test_util import start_local_ollama
 
 from config_util import load_yaml_config
 from ollama_util import OllamaClient
@@ -38,9 +38,6 @@ model: "{model}"
     client = OllamaClient(config)
 
     yield _SessionData(client=client, model=model)
-
-    # suite teardown
-    stop_process("ollama")
 
 
 def test_ollama_client(session_data: _SessionData):

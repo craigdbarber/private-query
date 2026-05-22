@@ -2,3 +2,7 @@
 .venv
 bazel-*
 __pycache__
+config.yaml
+model-cache
+vector-store
+.ollama

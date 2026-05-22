@@ -1,5 +1,7 @@
 """A module providing utility functionality for ollama."""
 
+import logging
+import time
 from typing import Any
 
 from ollama import Client
@@ -18,6 +20,9 @@ class OllamaClient:
         Args:
         config: The ollama configuration to be used.
 
+        Raises:
+            ConnectionError: If a connection could not be established with Ollama.
+
         """
         # Instance variables
         self._client: Client
@@ -32,8 +37,24 @@ class OllamaClient:
         api_key = get_config_str(config, "api_key", raise_error=False)
         if api_key is not None:
             kwargs["headers"] = {"Authorization": f"Bearer ${api_key}"}
-        self._client = Client(host=host, **kwargs)
-        self._client.pull(self._model)
+        logging.getLogger("httpx").setLevel(logging.WARNING)
+        logging.getLogger("httpcore").setLevel(logging.WARNING)
+        max_retries = 3
+        retry_delay = 2
+        attempts = 0
+        success = False
+        while not success and attempts < max_retries:
+            try:
+                self._client = Client(host=host, **kwargs)
+                self._client.pull(self._model)
+                success = True
+            except Exception:  # pylint: disable=broad-exception-caught
+                attempts += 1
+                time.sleep(retry_delay)
+        if not success:
+            raise ConnectionError(
+                f"Failed to establish connection with Ollama at host: {host}"
+            )
 
     def contains_model(self, model: str) -> bool:
         """Return whether the specified model is loaded.

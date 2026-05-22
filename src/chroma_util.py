@@ -1,7 +1,13 @@
 """A module providing utility functionality for chromadb."""
 
+import logging
+import os
+import sys
 from enum import StrEnum
 from typing import Any
+
+os.environ["HF_TOKEN"] = ""
+os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
 
 import torch
 from chromadb import Collection, PersistentClient
@@ -71,6 +77,10 @@ class ChromaClient:
         model_cache_dir = get_config_str(config, "model_cache_directory")
         assert model_cache_dir
         self._model_cache_dir = model_cache_dir
+        logging.getLogger("sentence_transformers").setLevel(logging.ERROR)
+        logging.getLogger("transformers").setLevel(logging.ERROR)
+        logging.getLogger("huggingface_hub.utils._http").setLevel(logging.ERROR)
+        logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
         self._embedding_func = _get_embedding_function(
             embedding_model, self._model_cache_dir
         )
@@ -147,7 +157,8 @@ class ChromaClient:
             pretrained_model_name_or_path=f"sentence-transformers/{self._embedding_func.model_name}",
             **kwargs,
         )
-        tokens = tokenizer.encode(text, add_special_tokens=False)
+        tokenizer.model_max_length = sys.maxsize
+        tokens = tokenizer.encode(text, add_special_tokens=False, truncation=False)
         chunks: list[str] = []
         start_index = 0
         while start_index < len(tokens):

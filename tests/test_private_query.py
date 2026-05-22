@@ -4,7 +4,7 @@ from collections.abc import Generator
 from dataclasses import dataclass
 
 import pytest
-from test_util import load_test_data_dir, start_local_ollama, stop_process
+from test_util import load_test_data_dir, start_local_ollama
 
 from chroma_util import ChromaClient
 from config_util import get_config_dict, load_yaml_config
@@ -58,8 +58,6 @@ ollama:
     ollama = OllamaClient(ollama_config)
 
     yield _SessionData(PrivateQuery(chroma=chroma, ollama=ollama), chroma=chroma)
-
-    stop_process("ollama")
 
 
 def test_embed_documents(session_data: _SessionData):

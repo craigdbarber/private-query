@@ -30,7 +30,11 @@ def load_test_data_dir(data_dir: str | None = None) -> Path:
         repo_root = current_repo if current_repo else "_main"
         if data_dir:
             runfiles_path = rf.Rlocation(f"{repo_root}/{data_dir}")
-            if runfiles_path and os.path.exists(runfiles_path):
+            if (
+                runfiles_path
+                and os.path.exists(runfiles_path)
+                and os.path.isdir(runfiles_path)
+            ):
                 return Path(runfiles_path).resolve()
         else:
             root_path = rf.Rlocation(repo_root)
@@ -75,21 +79,10 @@ def start_local_ollama(host: str, home_dir: Path):
         check=True,
     )
     # verify ollama is running before returning
-    max_attempts = 3
-    attempts = 0
-    retry_delay = 1
-    success = False
-    while not success and attempts < max_attempts:
+    while True:
         if is_process_running("ollama"):
-            success = True
-        else:
-            time.sleep(retry_delay)
-            attempts += 1
-    if not success:
-        raise RuntimeError(
-            f"Failed to start ollama service: host: {host} start_script_path:\
-                  {start_script_path}"
-        )
+            break
+        time.sleep(2)
 
 
 def is_process_running(name: str) -> bool:

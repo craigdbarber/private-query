@@ -91,12 +91,15 @@ class PrivateQuery:
         context_prompt = f"""
         Your role is a knowledge base provider, answering questions about information
         contained in a local set of documents. Answer the question below only using the
-        provided context. Provide a descriptive and complete answer. Be sure to include
-        a reference to the unique file paths of the documents the answer was
-        constructed from in your answer. Do not dump the contents of each used document
-        in your answer, just include your synapses and explanations. If the context does
-        not contain enough information to accurately answer the question, say so
-        clearly.
+        provided context. Provide a descriptive and complete answer, including a final
+        summary. Do not include the exact contents of context documents in your answer,
+        just include your synopsis and explanation. If the context does not contain
+        enough information to accurately answer the question, say so clearly. After the
+        summary, include a well formatted references section which provides a list of
+        the unique file paths from the context used to generate your answer, making sure
+        to just include the file paths not the contents of the documents, also
+        making sure to format each so that it is prefixed with "* " and enclosed in
+        quotes.
 
         Context:
         {context}

@@ -1,18 +1,20 @@
 settings:
+  # the name of the vector db collection to be used.
+  collection_name: "private-query-collection"
   chroma:
     # Local persistent client config
     type: "local"
-    persist_directory: "./vector_store"
+    persist_directory: "./vector-store"
     # Remote client config
     # type: "remote"
     # uri: "<chroma_server_uri>"
     # database: "<chroma_db_name>"
 
     # The embedding model to use.
-    embedding_model: "multi-qa-MiniLM-L6-cos-v1"
-    model_cache_directory: "./vector_cache"
+    embedding_model: "all-MiniLM-L6-v2"
+    model_cache_directory: "./model-cache"
   ollama:
-    host: "localhost"
+    host: "localhost:8080"
     #api_key: <your API key"
     model: "llama3.2:latest"
 
