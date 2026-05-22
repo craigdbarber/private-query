@@ -6,7 +6,7 @@ def py_library(name, imports = None, **kwargs):
     _py_library(
         name = name,
         imports = imports + ["src"],
-        **kwargs
+        **kwargs,
     )
 
 def py_test(name, deps = None, imports = None, pytest_main = True, **kwargs):

@@ -1,120 +1,73 @@
-"""A collection of utility functions for testing."""
-
 import os
-import shlex
-import subprocess
-import time
 from pathlib import Path
 
-import psutil
 from runfiles import runfiles
 
 
-def load_test_data_dir(data_dir: str | None = None) -> Path:
-    """Load a target directory supporting execution from both bazel and pytest.
+def load_directory(dir_path: str | None = None) -> Path:
+    """Resolve target directory seemlessly across multiple running environments.
+    1. Standard CLI executable.
+    2. 'bazel run //target' (Local Bazel workspace execution).
+    3. Direct local 'pytest' calls.
+    4. 'bazel test //target' (Isolated Bazel sandbox test suites).
+    5. Standalone self-contained compiled Bazel binaries.
 
     Args:
-        data_dir: The relative path of the directory to be loaded (e.g., "tests/data").
-                  If None or empty, returns the project root directory.
-    Returns: The requested data dir, or the project root directory.
-
-    Raises:
-        FileNotFoundError: If the specified relative path does not exist.
+        dir_path: The relatie path of the directory to be resolved. If None,
+        defaults to the root of the project/working dir.
+    Returns: The resolved directory path.
 
     """
-    # check if running under bazel
-    if "RUNFILES_DIR" in os.environ or "RUNFILES_MANIFEST_FILE" in os.environ:
+    # anchor the working directory.
+    base_working_dir: Path
+    # Case: 'bazel run'
+    if "BUILD_WORKDING_DIRECTORY" in os.environ:
+        base_working_dir = Path(os.environ["BUILD_WORKING_DIRECTORY"])
+    # case: 'bazel test'
+    elif "TEST_SRCDIR" in os.environ:
+        test_workspace = os.environ.get("TEST_WORKSPACE", "")
+        base_working_dir = Path(os.environ["TEST_SRCDIR"]) / test_workspace
+    # case: Standard python runtime or direct 'pytest'
+    else:
+        base_working_dir = Path.cwd()
+    base_working_dir = base_working_dir.resolve()
+
+    # if a relative directory was specified
+    if dir_path is not None:
+        raw_path = Path(dir_path)
+        if raw_path.is_absolute():
+            return raw_path.resolve()
+        return (base_working_dir / raw_path).resolve()
+    # if no directory path was specified default to project or working dir
+
+    # case bazel env
+    if "RUNFILES_DIR" in os.environ or "TEST_SRCDIR" in os.environ:
         rf = runfiles.Create()
         assert rf
-        current_repo = rf.CurrentRepository()
-        repo_root = current_repo if current_repo else "_main"
-        if data_dir:
-            runfiles_path = rf.Rlocation(f"{repo_root}/{data_dir}")
-            if (
-                runfiles_path
-                and os.path.exists(runfiles_path)
-                and os.path.isdir(runfiles_path)
-            ):
-                return Path(runfiles_path).resolve()
-        else:
-            root_path = rf.Rlocation(repo_root)
-            if root_path and os.path.exists(root_path):
-                return Path(root_path).resolve()
+        workspace_name = rf.CurrentRepository()
+        if not workspace_name:
+            workspace_name = os.environ.get("TEST_WORKSPACE", "")
+        if not workspace_name:
+            runfiles_dir = os.environ.get("RUNFILES_DIR") or os.environ.get(
+                "TEST_SRCDIR"
+            )
+            if runfiles_dir:
+                workspace_name = Path(runfiles_dir).name
+        if workspace_name:
+            workspace_root = rf.Rlocation(workspace_name)
+            if workspace_root:
+                return Path(workspace_root).resolve()
+        # global bazel fallback if manifest hooks completely miss
+        bazel_env_dir = os.environ.get("RUNFILES_DIR") or os.environ.get("TEST_SRCDIR")
+        if bazel_env_dir:
+            return Path(bazel_env_dir).resolve()
 
-    # fallback to standard pytest exeuction from the project root
-    project_root = Path(__file__).parent.parent
-    if data_dir:
-        data_dir_path = project_root / data_dir
-        if data_dir_path.exists() and data_dir_path.is_dir():
-            return data_dir_path.resolve()
-    else:
-        return project_root.resolve()
+    # case standard python runtime
+    file_anchor = Path(__file__).resolve()
+    if file_anchor.parent.name == "src":
+        return file_anchor.parents[0]
+    if file_anchor.parent.parent.name == "src":
+        return file_anchor.parents[1]
 
-    # if the specified data directory could not be found, raise an error
-    raise FileNotFoundError(f"Failed to load test directory: {data_dir}")
-
-
-def start_local_ollama(host: str, home_dir: Path):
-    """Start a local ollama server for testing.
-
-    Args:
-        host: The host URL for ollama configuration.
-        home_dir: The home directory for ollama configuration.
-
-    """
-    if is_process_running("ollama"):
-        return
-
-    scripts_dir_path = load_test_data_dir("scripts")
-    start_script_path = (scripts_dir_path / "start_ollama.sh").resolve()
-    # start_script_path = load_test_resource("scripts/start_ollama.sh")
-    subprocess.run(  # noqa: S603
-        [
-            str(start_script_path),
-            "--host",
-            shlex.quote(host),
-            "--ollama_home_dir",
-            shlex.quote(str(home_dir)),
-        ],
-        check=True,
-    )
-    # verify ollama is running before returning
-    while True:
-        if is_process_running("ollama"):
-            break
-        time.sleep(2)
-
-
-def is_process_running(name: str) -> bool:
-    """Return whether a process with the specified name is running.
-
-    Args:
-        name: The name of the process.
-    Returns: Whether the process is running.
-
-    """
-    return any(
-        name in proc.info["name"].lower() for proc in psutil.process_iter(["name"])
-    )
-
-
-def stop_process(name: str) -> bool:
-    """Attempt to stop the process with the specified name.
-
-    Args:
-        name: The name of the process to be stopped.
-    Returns: Whether the process was successfully stopped.
-
-    """
-    stopped = False
-    for proc in psutil.process_iter(["name", "pid"]):
-        try:
-            if name in proc.info["name"].lower():
-                proc.kill()
-                stopped = True
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            # handles cases where process closes natually while loop is running or
-            # requires admin rights
-            continue
-
-    return stopped
+    # global hard fallback
+    return base_working_dir

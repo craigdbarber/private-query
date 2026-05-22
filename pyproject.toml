@@ -4,9 +4,7 @@ version = "0.1.0"
 description = "A solution for embedding private datasets into vector stores and querying against local LLMs."
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
-
-[dependency-groups]
-main = [
+dependencies = [
     "chromadb",
     "pyyaml",
     "more-itertools",
@@ -20,8 +18,10 @@ main = [
     "python-docx>=1.2.0",
     "typer>=0.25.1",
 ]
+
+[dependency-groups]
 dev = [
-    { include-group = "main" },
+    "private-query",
     "pytest",
     "ruff",
     "bandit",
@@ -41,8 +41,11 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src"]
 
+[tool.hatch.build.targets.wheel.sources]
+"src" = ""
+
 [project.scripts]
-private-query = "src.main_cli:app"
+private-query = "main_cli:app"
 
 [tool.bandit]
 skips = ["B101"]

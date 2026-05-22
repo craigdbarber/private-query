@@ -89,7 +89,8 @@ py_pex_binary(
     binary = ":private_query_cli",
     inject_env = {
         "PEX_UNZIP": "1"
-    }
+    },
+    tags = ["manual"],
 )
 
 genrule(
