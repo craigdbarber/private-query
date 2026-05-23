@@ -1,0 +1,16 @@
+# ====================================================================
+# ABSOLUTE COPILOT LOCKDOWN
+# Blocks GitHub Copilot from reading any files or code in this project
+# ====================================================================
+
+# 1. Block absolutely every file and folder recursively from the root
+**/*
+
+# 2. Catch hidden files, dotfiles, and environmental secrets
+**/.*
+**/.venv*
+
+# 3. Specifically isolate common repository meta-directories
+.git/
+.github/
+.vscode/
