@@ -6,3 +6,4 @@ config.yaml
 model-cache
 vector-store
 .ollama
+.coverage
