@@ -54,7 +54,7 @@ packages = ["src"]
 private-query = "main_cli:app"
 
 [tool.bandit]
-skips = ["B101"]
+exclude_dirs = ["tests"]
 
 [tool.uv]
 environments = [
@@ -68,14 +68,25 @@ include = ["src", "tests"]
 exclude = [".venv", "bazel*"]
 
 [tool.ty.environment]
-extra-paths = ["./tests"]
+extra-paths = ["tests"]
 
 [tool.ruff]
 target-version = "py312"
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "*__init__.py",
+    "bazel-*",
+    ".vscode",
+    ".ollama",
+    ".pytest_cache",
+    ".ruff_cache"
+]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "W", "UP", "S", "D"]
-ignore = ["S101", "D203", "D213", "D205", "I001", "S311", "D104"]
+select = ["E", "W", "F", "I", "UP", "S", "D", "B", "SIM", "C4", "N"]
+ignore = ["S101", "D203", "D213", "D205", "S311"]
 
 [tool.pytest.ini_options]
 pythonpath = ["tests", "src"]

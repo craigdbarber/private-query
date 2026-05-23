@@ -2,7 +2,7 @@
 
 import os
 import shlex
-import subprocess
+import subprocess  # nosec
 from pathlib import Path
 
 import psutil
@@ -21,6 +21,7 @@ def load_test_data_dir(data_dir: str | None = None) -> Path:
 
     Raises:
         FileNotFoundError: If the specified relative path does not exist.
+        RuntimeError: If bazel runfiles object failed to be created.
 
     """
     logger.info("Loading test data dir: {data_dir}")
@@ -28,7 +29,8 @@ def load_test_data_dir(data_dir: str | None = None) -> Path:
     if "RUNFILES_DIR" in os.environ or "RUNFILES_MANIFEST_FILE" in os.environ:
         logger.info("Attempting to load resource from bazel env.")
         rf = runfiles.Create()
-        assert rf
+        if rf is None:
+            raise RuntimeError("Failed to create bazel runfiles obj.")
         current_repo = rf.CurrentRepository()
         repo_root = current_repo if current_repo else "_main"
         if data_dir:
@@ -73,7 +75,7 @@ def start_local_ollama(host: str, home_dir: Path):
     )
 
     try:
-        subprocess.run(  # noqa: S603
+        subprocess.run(  # noqa: S603 # nosec
             [
                 str(start_script_path),
                 "--host",

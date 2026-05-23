@@ -3,8 +3,6 @@ common --@pypi//venv=dev
 
 # Lint configuration
 build:lint --aspects=//tools/lint:linters.bzl%ruff,//tools/lint:linters.bzl%bandit,//tools/lint:linters.bzl%ty,//tools/lint:linters.bzl%buildifier
-#build:lint --aspects=//tools/lint:linters.bzl%bandit
-#build:lint --aspects=//tools/lint:linters.bzl%ty
-#build:lint --aspects=//tools/lint:linters.bzl%buildifier
 build:lint --output_groups=rules_lint_report
 build:lint --@aspect_rules_lint//lint:fail_on_violation
+build:lint --strategy=AspectRulesLintTy=local

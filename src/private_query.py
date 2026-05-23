@@ -90,7 +90,7 @@ class PrivateQuery:
             if query_results["metadatas"] is not None
             else []
         )
-        results_zip = list(zip(result_docs, result_metadatas))
+        results_zip = list(zip(result_docs, result_metadatas, strict=True))
         logger.info(f"Query results len: {len(results_zip)}")
         context = ""
         for doc, metadata in results_zip:
