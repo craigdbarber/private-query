@@ -1,12 +1,14 @@
 """A module providing utility functionality for ollama."""
 
 import logging
-import time
+from collections.abc import Callable
 from typing import Any
 
+from loguru import logger
 from ollama import Client
+from tenacity import retry, stop_after_attempt, wait_random_exponential
 
-from config_util import NestedDict, get_config_str
+from config_util import get_config_value, get_config_value_or_none
 
 
 class OllamaClient:
@@ -14,7 +16,7 @@ class OllamaClient:
     maintaining the client.
     """
 
-    def __init__(self, config: NestedDict):
+    def __init__(self, config: dict[str, str]):
         """Initialize the ollama client.
 
         Args:
@@ -28,33 +30,34 @@ class OllamaClient:
         self._client: Client
         self._model: str
 
-        model = get_config_str(config, "model")
-        assert model
+        model = get_config_value(config, "model", str)
         self._model = model
-        host = get_config_str(config, "host")
-        assert host
+        host = get_config_value(config, "host", str)
         kwargs: dict[str, Any] = {}
-        api_key = get_config_str(config, "api_key", raise_error=False)
+        api_key = get_config_value_or_none(config, "api_key", str)
         if api_key is not None:
             kwargs["headers"] = {"Authorization": f"Bearer ${api_key}"}
         logging.getLogger("httpx").setLevel(logging.WARNING)
         logging.getLogger("httpcore").setLevel(logging.WARNING)
-        max_retries = 3
-        retry_delay = 2
-        attempts = 0
-        success = False
-        while not success and attempts < max_retries:
-            try:
-                self._client = Client(host=host, **kwargs)
-                self._client.pull(self._model)
-                success = True
-            except Exception:  # pylint: disable=broad-exception-caught
-                attempts += 1
-                time.sleep(retry_delay)
-        if not success:
-            raise ConnectionError(
-                f"Failed to establish connection with Ollama at host: {host}"
+
+        @retry(
+            wait=wait_random_exponential(max=10),
+            stop=stop_after_attempt(3),
+        )
+        def attempt_client_connect(connect_func: Callable[..., Client]) -> Client:
+            return connect_func()
+
+        try:
+            logger.info(f"Attempting to connect to ollama, host: {host}")
+            self._client = attempt_client_connect(lambda: Client(host=host, **kwargs))
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.error(
+                f"Failed to establish ollama client connection with host: {host}"
             )
+            raise ConnectionError("Failed to establish ollama client connection") from e
+
+        logger.info(f"Pulling model: {self._model}")
+        self._client.pull(self._model)
 
     def contains_model(self, model: str) -> bool:
         """Return whether the specified model is loaded.
@@ -80,6 +83,7 @@ class OllamaClient:
         Returns: The model's response.
 
         """
+        logger.debug(f"Executing ollama prompt: {prompt}")
         response = self._client.chat(
             model=self._model, messages=[{"role": "user", "content": prompt}]
         )

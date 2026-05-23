@@ -38,13 +38,18 @@ py_library(
     deps = [
         "@pypi//bazel_runfiles",
         "@pypi//psutil",
+        "@pypi//tenacity",
+        "@pypi//loguru",
     ],
 )
 
 py_library(
     name = "config_util",
     srcs = ["src/config_util.py"],
-    deps = ["@pypi//pyyaml"],
+    deps = [
+        "@pypi//pyyaml",
+        "@pypi//loguru",
+        ],
 )
 
 py_test(
@@ -56,19 +61,23 @@ py_test(
 py_library(
     name = "ollama_util",
     srcs = ["src/ollama_util.py"],
-    deps = ["@pypi//ollama"],
+    deps = [
+        ":config_util",
+        "@pypi//ollama",
+        "@pypi//loguru",
+        "@pypi//tenacity",
+    ],
 )
 
 py_test(
     name = "test_ollama_util",
     srcs = ["tests/test_ollama_util.py"],
-    # TBD: to see if its feasible to run this in CI
-    tags = ["manual"],
     deps = [
         ":config_util",
         ":ollama_util",
         ":test_util",
     ],
+    tags = ["exclusive"],
 )
 
 py_binary(
@@ -81,6 +90,7 @@ py_binary(
         ":config_util",
         ":ollama_util",
         "@pypi//typer",
+        "@pypi//loguru",
     ],
 )
 
@@ -94,11 +104,12 @@ py_pex_binary(
 )
 
 genrule(
-    name = "private-query",
+    name = "private_query",
     srcs = [":private_query_pex"],
     outs = ["private-query"],
     cmd = "cp $< $@",
     executable = True,
+    tags = ["manual"],
 )
 
 py_library(
@@ -110,6 +121,7 @@ py_library(
         ":ollama_util",
         ":test_util",
         "@pypi//chromadb",
+        "@pypi//loguru",
     ],
 )
 
@@ -123,6 +135,7 @@ py_test(
         ":ollama_util",
         ":private_query_lib",
     ],
+    tags = ["exclusive"],
 )
 
 py_library(
@@ -135,6 +148,8 @@ py_library(
         "@pypi//sentence_transformers",
         "@pypi//torch",
         "@pypi//transformers",
+        "@pypi//loguru",
+        "@pypi//tenacity",
     ],
 )
 

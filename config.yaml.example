@@ -12,10 +12,9 @@ settings:
 
     # The embedding model to use.
     embedding_model: "all-MiniLM-L6-v2"
+    embedding_model_revision: "c9745ed1d9f207416be6d2e6f8de32d1f16199bf"
     model_cache_directory: "./model-cache"
   ollama:
-    host: "localhost:8080"
+    host: "localhost:11434"
     #api_key: <your API key"
     model: "llama3.2:latest"
-
-  data_directory: "./data"

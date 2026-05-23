@@ -22,7 +22,7 @@ def suite_setup_teardown(
 ) -> Generator[_SessionData, None, None]:
     """Set up ollama local service for testing."""
     # suite setup
-    host = "localhost:8080"
+    host = "localhost:11434"
     model = "llama3.2:latest"
     client: OllamaClient
     ollama_home_dir = tmp_path_factory.mktemp("ollama_home")

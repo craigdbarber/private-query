@@ -1,23 +1,26 @@
 """A module providing utility functionality for chromadb."""
 
-import logging
 import os
+
+os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
+
+import logging
 import sys
+from collections.abc import Callable
 from enum import StrEnum
 from typing import Any
-
-os.environ["HF_TOKEN"] = ""
-os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
 
 import torch
 from chromadb import Collection, PersistentClient
 from chromadb.api import ClientAPI
 from chromadb.utils import embedding_functions
 from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
+from loguru import logger
 from more_itertools import batched
+from tenacity import retry, stop_after_attempt, wait_random_exponential
 from transformers import AutoTokenizer
 
-from config_util import NestedDict, get_config_str
+from config_util import get_config_value
 
 _CHROMA_MAX_BATCH_SIZE = 166
 
@@ -48,41 +51,64 @@ class ChromaClient:
     function.
     """
 
-    def __init__(self, config: NestedDict):
+    def __init__(self, config: dict[str, str]):
         """Intialize new client.
 
         Args:
             config: A dictionary containing the configuration values to parse.
 
+        Raises:
+            ConnectionError: If a client connection could not be established.
+
         """
         # instance variables
         self._client: ClientAPI
         self._embedding_func: SentenceTransformerEmbeddingFunction
+        self._embedding_model_revision: str
         self._model_cache_dir: str
 
+        @retry(
+            wait=wait_random_exponential(max=10),
+            stop=stop_after_attempt(3),
+        )
+        def attempt_client_connect(connect_func: Callable[..., ClientAPI]) -> ClientAPI:
+            return connect_func()
+
         # load the config
-        chroma_type = get_config_str(config, "type")
-        assert chroma_type
+        chroma_type = get_config_value(config, "type", str)
         db_type = _chroma_type_from_str(chroma_type)
         if db_type == _ChromaType.LOCAL:
-            persist_dir = get_config_str(config, "persist_directory")
-            assert persist_dir
-            self._client = PersistentClient(path=persist_dir)
+            persist_dir = get_config_value(config, "persist_directory", str)
+            logger.info(
+                f"Setting up local chroma client: persist_directory: {persist_dir}"
+            )
+            try:
+                self._client = attempt_client_connect(
+                    lambda: PersistentClient(persist_dir)
+                )
+            except Exception as e:
+                logger.error("Failed to create persistent chroma client.")
+                raise ConnectionError(
+                    "Failed to create persistent chroma client."
+                ) from e
         else:
             raise NotImplementedError(f"Chroma type not supported: {chroma_type}")
             # TODO: impemented support for remote type
 
-        embedding_model = get_config_str(config, "embedding_model")
-        assert embedding_model
-        model_cache_dir = get_config_str(config, "model_cache_directory")
-        assert model_cache_dir
+        embedding_model = get_config_value(config, "embedding_model", str)
+        model_cache_dir = get_config_value(config, "model_cache_directory", str)
         self._model_cache_dir = model_cache_dir
-        logging.getLogger("sentence_transformers").setLevel(logging.ERROR)
-        logging.getLogger("transformers").setLevel(logging.ERROR)
-        logging.getLogger("huggingface_hub.utils._http").setLevel(logging.ERROR)
+        embedding_model_revision = get_config_value(
+            config, "embedding_model_revision", str
+        )
+        self._embedding_model_revision = embedding_model_revision
+
+        # reduce the logging noise from huggingface_hub
         logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
+
+        logger.info(f"Retrieving embedding model: {embedding_model}")
         self._embedding_func = _get_embedding_function(
-            embedding_model, self._model_cache_dir
+            embedding_model, self._model_cache_dir, self._embedding_model_revision
         )
 
     def get_or_create_collection(
@@ -101,8 +127,8 @@ class ChromaClient:
             metadata["hnsw:space"] = distance_func
         return self._client.get_or_create_collection(
             name=name,
-            embedding_function=self._embedding_func,  # type: ignore # ty: ignore
-            metadata=metadata if metadata else None,  # type: ignore # ty: ignore
+            embedding_function=self._embedding_func,  # type: ignore
+            metadata=metadata if metadata else None,
         )
 
     def is_alive(self) -> bool:
@@ -135,7 +161,7 @@ class ChromaClient:
             collection.upsert(
                 ids=ids[start_idx:end_idx],
                 documents=documents[start_idx:end_idx],
-                metadatas=metadatas[start_idx:end_idx],  # type:ignore # ty: ignore # noqa: E501
+                metadatas=metadatas[start_idx:end_idx],  # type: ignore # noqa: E501
             )
 
     def chunk_text_by_tokens(
@@ -151,12 +177,20 @@ class ChromaClient:
             cache_dir: The cache director for the embedding model.
         Returns: A list of the generated text chunks.
 
+        Raises: RuntimeError If the tokenizer for the embedding model could not be
+        retrieved.
+
         """
-        kwargs: dict[str, Any] = {"token": False, "cache_dir": self._model_cache_dir}
+        model_path = f"sentence-transformers/{self._embedding_func.model_name}"
         tokenizer = AutoTokenizer.from_pretrained(
-            pretrained_model_name_or_path=f"sentence-transformers/{self._embedding_func.model_name}",
-            **kwargs,
+            pretrained_model_name_or_path=model_path,
+            revision=self._embedding_model_revision,
+            token=False,
+            cache_dir=self._model_cache_dir,
         )
+        if tokenizer is None:
+            logger.error(f"Failed to load tokenizer, model_path: {model_path}")
+            raise RuntimeError(f"Failed to load tokenizer, model_path: {model_path}")
         tokenizer.model_max_length = sys.maxsize
         tokens = tokenizer.encode(text, add_special_tokens=False, truncation=False)
         chunks: list[str] = []
@@ -167,7 +201,8 @@ class ChromaClient:
             tokens_text = tokenizer.decode(
                 chunk_tokens, clean_up_tokenization_spaces=True
             )
-            chunks.append(tokens_text)
+            if tokens_text is not None and tokens_text:
+                chunks.append(str(tokens_text))
             start_index += chunk_size - overlap
             if end_index >= len(tokens):
                 break
@@ -177,24 +212,26 @@ class ChromaClient:
 
 
 def _get_embedding_function(
-    model: str, model_cache_dir: str
+    model: str, model_cache_dir: str, model_revision: str
 ) -> SentenceTransformerEmbeddingFunction:
     """Create an embedding function with the given model name.
 
     Args:
         model: The name of the embedding model to be used.
         model_cache_dir: The directory to be used for model caching.
+        model_revision: The revision of the model.
 
     Returns: The embedding function for the specified model name.
 
     """
-    kwargs: dict[str, Any] = {
-        "cache_folder": model_cache_dir,
-        "token": False,
-    }
+    kwargs: dict[str, Any] = {}
     system_device = torch.accelerator.current_accelerator(check_available=True)
     if system_device:
         kwargs["device"] = str(system_device)
     return embedding_functions.SentenceTransformerEmbeddingFunction(
-        model_name=model, **kwargs
+        model_name=model,
+        token=False,
+        cache_folder=model_cache_dir,
+        revision=model_revision,
+        **kwargs,
     )

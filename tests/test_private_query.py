@@ -7,7 +7,7 @@ import pytest
 from test_util import load_test_data_dir, start_local_ollama
 
 from chroma_util import ChromaClient
-from config_util import get_config_dict, load_yaml_config
+from config_util import get_config_value, load_yaml_config
 from ollama_util import OllamaClient
 from private_query import PrivateQuery
 
@@ -27,7 +27,7 @@ def suite_setup_teardown(
     ollama: OllamaClient
 
     # setup config
-    ollama_host = "localhost:8080"
+    ollama_host = "localhost:11434"
     ollama_model = "llama3.2:latest"
     tmp_persist_dir = tmp_path_factory.mktemp("persist_dir")
     tmp_cache_dir = tmp_path_factory.mktemp("cache_dir")
@@ -38,6 +38,7 @@ chroma:
     type: "local"
     persist_directory: "{tmp_persist_dir}"
     embedding_model: "all-MiniLM-L6-v2"
+    embedding_model_revision: "c9745ed1d9f207416be6d2e6f8de32d1f16199bf"
     model_cache_directory: "{tmp_cache_dir}"
 ollama:
     host: "{ollama_host}"
@@ -46,15 +47,13 @@ ollama:
 
     # load chroma client
     config = load_yaml_config(str(tmp_config.absolute()))
-    chroma_config = get_config_dict(config, "chroma")
-    assert chroma_config
+    chroma_config = get_config_value(config, "chroma", dict[str, str])
     chroma = ChromaClient(chroma_config)
 
     # load ollama
     ollama_home = tmp_path_factory.mktemp("ollama_home")
     start_local_ollama(ollama_host, ollama_home)
-    ollama_config = get_config_dict(config, "ollama")
-    assert ollama_config
+    ollama_config = get_config_value(config, "ollama", dict[str, str])
     ollama = OllamaClient(ollama_config)
 
     yield _SessionData(PrivateQuery(chroma=chroma, ollama=ollama), chroma=chroma)

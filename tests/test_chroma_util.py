@@ -7,7 +7,7 @@ from dataclasses import dataclass
 import pytest
 
 from chroma_util import ChromaClient
-from config_util import NestedDict, load_yaml_config
+from config_util import load_yaml_config
 
 
 # The test chroma client for the session
@@ -30,10 +30,10 @@ def suite_setup_teardown(
 type: "local"
 persist_directory: "{tmp_persist_dir}"
 embedding_model: "all-MiniLM-L6-v2"
+embedding_model_revision: "c9745ed1d9f207416be6d2e6f8de32d1f16199bf"
 model_cache_directory: "{tmp_cache_dir}"
                 """)
-    chroma_config: NestedDict = load_yaml_config(str(tmp_config.absolute()))
-    assert chroma_config
+    chroma_config = load_yaml_config(str(tmp_config.absolute()))
     client = ChromaClient(chroma_config)
     assert client
 
@@ -87,7 +87,7 @@ def test_batched_upsert(session_data: _SessionData):
     assert results_ids.sort() == ids.sort()
     results_metadatas = results["metadatas"]
     assert results_metadatas
-    assert results_metadatas.sort(key=lambda d: d["id"]) == metadatas.sort(  # type: ignore # ty: ignore
+    assert results_metadatas.sort(key=lambda d: d["id"]) == metadatas.sort(
         key=lambda d: d["id"]
     )
 

@@ -2248,7 +2248,7 @@
     },
     "@@rules_python+//python/extensions:pip.bzl%pip": {
       "general": {
-        "bzlTransitiveDigest": "4QlzF8zdU4/NglYG3cDTS6mDZzH3nWbhfnPSUctawIs=",
+        "bzlTransitiveDigest": "wLR9u1LOZ0Hddk0lVDl6k699iYv6zmekX0YzcwpLB+Q=",
         "usagesDigest": "QhpwSpjt5RNV4DW0COXaXIg+q2u1jAgqj1Z5w1oRRE0=",
         "recordedFileInputs": {
           "@@protobuf+//python/requirements.txt": "983be60d3cec4b319dcab6d48aeb3f5b2f7c3350f26b3a9e97486c37967c73c5",
@@ -2267,7 +2267,7 @@
             "repoRuleId": "@@rules_python+//python/private/pypi:whl_library.bzl%whl_library",
             "attributes": {
               "dep_template": "@pip_deps//{name}:{target}",
-              "python_interpreter_target": "@@rules_python++python2+python_3_10_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_10_host//:python",
               "repo": "pip_deps_310",
               "requirement": "numpy<=1.26.1"
             }
@@ -2276,7 +2276,7 @@
             "repoRuleId": "@@rules_python+//python/private/pypi:whl_library.bzl%whl_library",
             "attributes": {
               "dep_template": "@pip_deps//{name}:{target}",
-              "python_interpreter_target": "@@rules_python++python2+python_3_10_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_10_host//:python",
               "repo": "pip_deps_310",
               "requirement": "setuptools<=70.3.0"
             }
@@ -2285,7 +2285,7 @@
             "repoRuleId": "@@rules_python+//python/private/pypi:whl_library.bzl%whl_library",
             "attributes": {
               "dep_template": "@pip_deps//{name}:{target}",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "pip_deps_311",
               "requirement": "numpy<=1.26.1"
             }
@@ -2294,7 +2294,7 @@
             "repoRuleId": "@@rules_python+//python/private/pypi:whl_library.bzl%whl_library",
             "attributes": {
               "dep_template": "@pip_deps//{name}:{target}",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "pip_deps_311",
               "requirement": "setuptools<=70.3.0"
             }
@@ -2303,7 +2303,7 @@
             "repoRuleId": "@@rules_python+//python/private/pypi:whl_library.bzl%whl_library",
             "attributes": {
               "dep_template": "@pip_deps//{name}:{target}",
-              "python_interpreter_target": "@@rules_python++python2+python_3_12_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_12_host//:python",
               "repo": "pip_deps_312",
               "requirement": "numpy<=1.26.1"
             }
@@ -2312,7 +2312,7 @@
             "repoRuleId": "@@rules_python+//python/private/pypi:whl_library.bzl%whl_library",
             "attributes": {
               "dep_template": "@pip_deps//{name}:{target}",
-              "python_interpreter_target": "@@rules_python++python2+python_3_12_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_12_host//:python",
               "repo": "pip_deps_312",
               "requirement": "setuptools<=70.3.0"
             }
@@ -2321,7 +2321,7 @@
             "repoRuleId": "@@rules_python+//python/private/pypi:whl_library.bzl%whl_library",
             "attributes": {
               "dep_template": "@pip_deps//{name}:{target}",
-              "python_interpreter_target": "@@rules_python++python2+python_3_8_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_8_host//:python",
               "repo": "pip_deps_38",
               "requirement": "numpy<=1.26.1"
             }
@@ -2330,7 +2330,7 @@
             "repoRuleId": "@@rules_python+//python/private/pypi:whl_library.bzl%whl_library",
             "attributes": {
               "dep_template": "@pip_deps//{name}:{target}",
-              "python_interpreter_target": "@@rules_python++python2+python_3_8_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_8_host//:python",
               "repo": "pip_deps_38",
               "requirement": "setuptools<=70.3.0"
             }
@@ -2339,7 +2339,7 @@
             "repoRuleId": "@@rules_python+//python/private/pypi:whl_library.bzl%whl_library",
             "attributes": {
               "dep_template": "@pip_deps//{name}:{target}",
-              "python_interpreter_target": "@@rules_python++python2+python_3_9_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_9_host//:python",
               "repo": "pip_deps_39",
               "requirement": "numpy<=1.26.1"
             }
@@ -2348,7 +2348,7 @@
             "repoRuleId": "@@rules_python+//python/private/pypi:whl_library.bzl%whl_library",
             "attributes": {
               "dep_template": "@pip_deps//{name}:{target}",
-              "python_interpreter_target": "@@rules_python++python2+python_3_9_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_9_host//:python",
               "repo": "pip_deps_39",
               "requirement": "setuptools<=70.3.0"
             }
@@ -2360,7 +2360,7 @@
               "extra_pip_args": [
                 "--require-hashes"
               ],
-              "python_interpreter_target": "@@rules_python++python2+python_3_10_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_10_host//:python",
               "repo": "rules_fuzzing_py_deps_310",
               "requirement": "absl-py==2.0.0 --hash=sha256:9a28abb62774ae4e8edbe2dd4c49ffcd45a6a848952a5eccc6a49f3f0fc1e2f3"
             }
@@ -2372,7 +2372,7 @@
               "extra_pip_args": [
                 "--require-hashes"
               ],
-              "python_interpreter_target": "@@rules_python++python2+python_3_10_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_10_host//:python",
               "repo": "rules_fuzzing_py_deps_310",
               "requirement": "six==1.16.0 --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"
             }
@@ -2384,7 +2384,7 @@
               "extra_pip_args": [
                 "--require-hashes"
               ],
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_fuzzing_py_deps_311",
               "requirement": "absl-py==2.0.0 --hash=sha256:9a28abb62774ae4e8edbe2dd4c49ffcd45a6a848952a5eccc6a49f3f0fc1e2f3"
             }
@@ -2396,7 +2396,7 @@
               "extra_pip_args": [
                 "--require-hashes"
               ],
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_fuzzing_py_deps_311",
               "requirement": "six==1.16.0 --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"
             }
@@ -2408,7 +2408,7 @@
               "extra_pip_args": [
                 "--require-hashes"
               ],
-              "python_interpreter_target": "@@rules_python++python2+python_3_12_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_12_host//:python",
               "repo": "rules_fuzzing_py_deps_312",
               "requirement": "absl-py==2.0.0 --hash=sha256:9a28abb62774ae4e8edbe2dd4c49ffcd45a6a848952a5eccc6a49f3f0fc1e2f3"
             }
@@ -2420,7 +2420,7 @@
               "extra_pip_args": [
                 "--require-hashes"
               ],
-              "python_interpreter_target": "@@rules_python++python2+python_3_12_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_12_host//:python",
               "repo": "rules_fuzzing_py_deps_312",
               "requirement": "six==1.16.0 --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"
             }
@@ -2432,7 +2432,7 @@
               "extra_pip_args": [
                 "--require-hashes"
               ],
-              "python_interpreter_target": "@@rules_python++python2+python_3_8_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_8_host//:python",
               "repo": "rules_fuzzing_py_deps_38",
               "requirement": "absl-py==2.0.0 --hash=sha256:9a28abb62774ae4e8edbe2dd4c49ffcd45a6a848952a5eccc6a49f3f0fc1e2f3"
             }
@@ -2444,7 +2444,7 @@
               "extra_pip_args": [
                 "--require-hashes"
               ],
-              "python_interpreter_target": "@@rules_python++python2+python_3_8_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_8_host//:python",
               "repo": "rules_fuzzing_py_deps_38",
               "requirement": "six==1.16.0 --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"
             }
@@ -2456,7 +2456,7 @@
               "extra_pip_args": [
                 "--require-hashes"
               ],
-              "python_interpreter_target": "@@rules_python++python2+python_3_9_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_9_host//:python",
               "repo": "rules_fuzzing_py_deps_39",
               "requirement": "absl-py==2.0.0 --hash=sha256:9a28abb62774ae4e8edbe2dd4c49ffcd45a6a848952a5eccc6a49f3f0fc1e2f3"
             }
@@ -2468,7 +2468,7 @@
               "extra_pip_args": [
                 "--require-hashes"
               ],
-              "python_interpreter_target": "@@rules_python++python2+python_3_9_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_9_host//:python",
               "repo": "rules_fuzzing_py_deps_39",
               "requirement": "six==1.16.0 --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"
             }
@@ -2488,7 +2488,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "backports.tarfile-1.2.0-py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "backports-tarfile==1.2.0",
               "sha256": "77e284d754527b01fb1e6fa8a1afe577858ebe4e9dad8919e34c862cb399bc34",
@@ -2516,7 +2516,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "backports_tarfile-1.2.0.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "backports-tarfile==1.2.0",
               "sha256": "d75e02c268746e1b8144c278978b6e98e85de6ad16f8e4b0844a154557eca991",
@@ -2540,7 +2540,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "certifi-2024.8.30-py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "certifi==2024.8.30",
               "sha256": "922820b53db7a7257ffbda3f597266d435245903d80737e34f8a45ff3e3230d8",
@@ -2568,7 +2568,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "certifi-2024.8.30.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "certifi==2024.8.30",
               "sha256": "bec941d2aa8195e248a60b31ff9f0558284cf01a52591ceda73ea9afffd69fd9",
@@ -2589,7 +2589,7 @@
                 "cp311_linux_x86_64"
               ],
               "filename": "cffi-1.17.1-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "cffi==1.17.1",
               "sha256": "a1ed2dd2972641495a3ec98445e09766f077aee98a1c896dcb4ad0d303628e41",
@@ -2610,7 +2610,7 @@
                 "cp311_linux_x86_64"
               ],
               "filename": "cffi-1.17.1-cp311-cp311-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "cffi==1.17.1",
               "sha256": "46bf43160c1a35f7ec506d254e5c890f3c03648a4dbac12d624e4490a7046cd1",
@@ -2631,7 +2631,7 @@
                 "cp311_linux_x86_64"
               ],
               "filename": "cffi-1.17.1-cp311-cp311-manylinux_2_17_s390x.manylinux2014_s390x.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "cffi==1.17.1",
               "sha256": "a24ed04c8ffd54b0729c07cee15a81d964e6fee0e3d4d342a27b020d22959dc6",
@@ -2652,7 +2652,7 @@
                 "cp311_linux_x86_64"
               ],
               "filename": "cffi-1.17.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "cffi==1.17.1",
               "sha256": "610faea79c43e44c71e1ec53a554553fa22321b65fae24889706c0a84d4ad86d",
@@ -2673,7 +2673,7 @@
                 "cp311_linux_x86_64"
               ],
               "filename": "cffi-1.17.1-cp311-cp311-musllinux_1_1_aarch64.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "cffi==1.17.1",
               "sha256": "a9b15d491f3ad5d692e11f6b71f7857e7835eb677955c00cc0aefcd0669adaf6",
@@ -2694,7 +2694,7 @@
                 "cp311_linux_x86_64"
               ],
               "filename": "cffi-1.17.1-cp311-cp311-musllinux_1_1_x86_64.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "cffi==1.17.1",
               "sha256": "fc48c783f9c87e60831201f2cce7f3b2e4846bf4d8728eabe54d60700b318a0b",
@@ -2719,7 +2719,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "cffi-1.17.1.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "cffi==1.17.1",
               "sha256": "1c39c6016c32bc48dd54561950ebd6836e1670f2ae46128f67cf49e789c52824",
@@ -2743,7 +2743,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "charset_normalizer-3.4.0-cp311-cp311-macosx_10_9_universal2.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "charset-normalizer==3.4.0",
               "sha256": "0d99dd8ff461990f12d6e42c7347fd9ab2532fb70e9621ba520f9e8637161d7c",
@@ -2767,7 +2767,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "charset_normalizer-3.4.0-cp311-cp311-macosx_10_9_x86_64.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "charset-normalizer==3.4.0",
               "sha256": "c57516e58fd17d03ebe67e181a4e4e2ccab1168f8c2976c6a334d4f819fe5944",
@@ -2791,7 +2791,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "charset_normalizer-3.4.0-cp311-cp311-macosx_11_0_arm64.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "charset-normalizer==3.4.0",
               "sha256": "6dba5d19c4dfab08e58d5b36304b3f92f3bd5d42c1a3fa37b5ba5cdf6dfcbcee",
@@ -2815,7 +2815,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "charset_normalizer-3.4.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "charset-normalizer==3.4.0",
               "sha256": "bf4475b82be41b07cc5e5ff94810e6a01f276e37c2d55571e3fe175e467a1a1c",
@@ -2839,7 +2839,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "charset_normalizer-3.4.0-cp311-cp311-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "charset-normalizer==3.4.0",
               "sha256": "ce031db0408e487fd2775d745ce30a7cd2923667cf3b69d48d219f1d8f5ddeb6",
@@ -2863,7 +2863,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "charset_normalizer-3.4.0-cp311-cp311-manylinux_2_17_s390x.manylinux2014_s390x.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "charset-normalizer==3.4.0",
               "sha256": "8ff4e7cdfdb1ab5698e675ca622e72d58a6fa2a8aa58195de0c0061288e6e3ea",
@@ -2887,7 +2887,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "charset_normalizer-3.4.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "charset-normalizer==3.4.0",
               "sha256": "3710a9751938947e6327ea9f3ea6332a09bf0ba0c09cae9cb1f250bd1f1549bc",
@@ -2911,7 +2911,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "charset_normalizer-3.4.0-cp311-cp311-musllinux_1_2_aarch64.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "charset-normalizer==3.4.0",
               "sha256": "47334db71978b23ebcf3c0f9f5ee98b8d65992b65c9c4f2d34c2eaf5bcaf0594",
@@ -2935,7 +2935,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "charset_normalizer-3.4.0-cp311-cp311-musllinux_1_2_ppc64le.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "charset-normalizer==3.4.0",
               "sha256": "f1a2f519ae173b5b6a2c9d5fa3116ce16e48b3462c8b96dfdded11055e3d6365",
@@ -2959,7 +2959,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "charset_normalizer-3.4.0-cp311-cp311-musllinux_1_2_s390x.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "charset-normalizer==3.4.0",
               "sha256": "63bc5c4ae26e4bc6be6469943b8253c0fd4e4186c43ad46e713ea61a0ba49129",
@@ -2983,7 +2983,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "charset_normalizer-3.4.0-cp311-cp311-musllinux_1_2_x86_64.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "charset-normalizer==3.4.0",
               "sha256": "bcb4f8ea87d03bc51ad04add8ceaf9b0f085ac045ab4d74e73bbc2dc033f0236",
@@ -3007,7 +3007,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "charset_normalizer-3.4.0-cp311-cp311-win_amd64.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "charset-normalizer==3.4.0",
               "sha256": "cee4373f4d3ad28f1ab6290684d8e2ebdb9e7a1b74fdc39e4c211995f77bec27",
@@ -3031,7 +3031,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "charset_normalizer-3.4.0-py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "charset-normalizer==3.4.0",
               "sha256": "fe9f97feb71aa9896b81973a7bbada8c49501dc73e58a10fcef6663af95e5079",
@@ -3059,7 +3059,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "charset_normalizer-3.4.0.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "charset-normalizer==3.4.0",
               "sha256": "223217c3d4f82c3ac5e29032b3f1c2eb0fb591b72161f86d93f5719079dae93e",
@@ -3080,7 +3080,7 @@
                 "cp311_linux_x86_64"
               ],
               "filename": "cryptography-43.0.3-cp39-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "cryptography==43.0.3",
               "sha256": "846da004a5804145a5f441b8530b4bf35afbf7da70f82409f151695b127213d5",
@@ -3101,7 +3101,7 @@
                 "cp311_linux_x86_64"
               ],
               "filename": "cryptography-43.0.3-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "cryptography==43.0.3",
               "sha256": "0f996e7268af62598f2fc1204afa98a3b5712313a55c4c9d434aef49cadc91d4",
@@ -3122,7 +3122,7 @@
                 "cp311_linux_x86_64"
               ],
               "filename": "cryptography-43.0.3-cp39-abi3-manylinux_2_28_aarch64.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "cryptography==43.0.3",
               "sha256": "f7b178f11ed3664fd0e995a47ed2b5ff0a12d893e41dd0494f406d1cf555cab7",
@@ -3143,7 +3143,7 @@
                 "cp311_linux_x86_64"
               ],
               "filename": "cryptography-43.0.3-cp39-abi3-manylinux_2_28_x86_64.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "cryptography==43.0.3",
               "sha256": "c2e6fc39c4ab499049df3bdf567f768a723a5e8464816e8f009f121a5a9f4405",
@@ -3164,7 +3164,7 @@
                 "cp311_linux_x86_64"
               ],
               "filename": "cryptography-43.0.3-cp39-abi3-musllinux_1_2_aarch64.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "cryptography==43.0.3",
               "sha256": "e1be4655c7ef6e1bbe6b5d0403526601323420bcf414598955968c9ef3eb7d16",
@@ -3185,7 +3185,7 @@
                 "cp311_linux_x86_64"
               ],
               "filename": "cryptography-43.0.3-cp39-abi3-musllinux_1_2_x86_64.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "cryptography==43.0.3",
               "sha256": "df6b6c6d742395dd77a23ea3728ab62f98379eff8fb61be2744d4679ab678f73",
@@ -3210,7 +3210,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "cryptography-43.0.3.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "cryptography==43.0.3",
               "sha256": "315b9001266a492a6ff443b61238f956b214dbec9910a081ba5b6646a055a805",
@@ -3234,7 +3234,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "docutils-0.21.2-py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "docutils==0.21.2",
               "sha256": "dafca5b9e384f0e419294eb4d2ff9fa826435bf15f15b7bd45723e8ad76811b2",
@@ -3262,7 +3262,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "docutils-0.21.2.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "docutils==0.21.2",
               "sha256": "3a6b18732edf182daa3cd12775bbb338cf5691468f91eeeb109deff6ebfa986f",
@@ -3286,7 +3286,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "idna-3.10-py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "idna==3.10",
               "sha256": "946d195a0d259cbba61165e88e65941f16e9b36ea6ddb97f00452bae8b1287d3",
@@ -3314,7 +3314,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "idna-3.10.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "idna==3.10",
               "sha256": "12f65c9b470abda6dc35cf8e63cc574b1c52b11df2c86030af0ac09b01b13ea9",
@@ -3338,7 +3338,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "importlib_metadata-8.5.0-py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "importlib-metadata==8.5.0",
               "sha256": "45e54197d28b7a7f1559e60b95e7c567032b602131fbd588f1497f47880aa68b",
@@ -3366,7 +3366,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "importlib_metadata-8.5.0.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "importlib-metadata==8.5.0",
               "sha256": "71522656f0abace1d072b9e5481a48f07c138e00f079c38c8f883823f9c26bd7",
@@ -3390,7 +3390,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "jaraco.classes-3.4.0-py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "jaraco-classes==3.4.0",
               "sha256": "f662826b6bed8cace05e7ff873ce0f9283b5c924470fe664fff1c2f00f581790",
@@ -3418,7 +3418,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "jaraco.classes-3.4.0.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "jaraco-classes==3.4.0",
               "sha256": "47a024b51d0239c0dd8c8540c6c7f484be3b8fcf0b2d85c13825780d3b3f3acd",
@@ -3442,7 +3442,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "jaraco.context-6.0.1-py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "jaraco-context==6.0.1",
               "sha256": "f797fc481b490edb305122c9181830a3a5b76d84ef6d1aef2fb9b47ab956f9e4",
@@ -3470,7 +3470,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "jaraco_context-6.0.1.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "jaraco-context==6.0.1",
               "sha256": "9bae4ea555cf0b14938dc0aee7c9f32ed303aa20a3b73e7dc80111628792d1b3",
@@ -3494,7 +3494,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "jaraco.functools-4.1.0-py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "jaraco-functools==4.1.0",
               "sha256": "ad159f13428bc4acbf5541ad6dec511f91573b90fba04df61dafa2a1231cf649",
@@ -3522,7 +3522,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "jaraco_functools-4.1.0.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "jaraco-functools==4.1.0",
               "sha256": "70f7e0e2ae076498e212562325e805204fc092d7b4c17e0e86c959e249701a9d",
@@ -3543,7 +3543,7 @@
                 "cp311_linux_x86_64"
               ],
               "filename": "jeepney-0.8.0-py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "jeepney==0.8.0",
               "sha256": "c0a454ad016ca575060802ee4d590dd912e35c122fa04e70306de3d076cce755",
@@ -3568,7 +3568,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "jeepney-0.8.0.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "jeepney==0.8.0",
               "sha256": "5efe48d255973902f6badc3ce55e2aa6c5c3b3bc642059ef3a91247bcfcc5806",
@@ -3592,7 +3592,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "keyring-25.4.1-py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "keyring==25.4.1",
               "sha256": "5426f817cf7f6f007ba5ec722b1bcad95a75b27d780343772ad76b17cb47b0bf",
@@ -3620,7 +3620,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "keyring-25.4.1.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "keyring==25.4.1",
               "sha256": "b07ebc55f3e8ed86ac81dd31ef14e81ace9dd9c3d4b5d77a6e9a2016d0d71a1b",
@@ -3644,7 +3644,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "markdown_it_py-3.0.0-py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "markdown-it-py==3.0.0",
               "sha256": "355216845c60bd96232cd8d8c40e8f9765cc86f46880e43a8fd22dc1a1a8cab1",
@@ -3672,7 +3672,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "markdown-it-py-3.0.0.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "markdown-it-py==3.0.0",
               "sha256": "e3f60a94fa066dc52ec76661e37c851cb232d92f9886b15cb560aaada2df8feb",
@@ -3696,7 +3696,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "mdurl-0.1.2-py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "mdurl==0.1.2",
               "sha256": "84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8",
@@ -3724,7 +3724,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "mdurl-0.1.2.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "mdurl==0.1.2",
               "sha256": "bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba",
@@ -3748,7 +3748,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "more_itertools-10.5.0-py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "more-itertools==10.5.0",
               "sha256": "037b0d3203ce90cca8ab1defbbdac29d5f993fc20131f3664dc8d6acfa872aef",
@@ -3776,7 +3776,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "more-itertools-10.5.0.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "more-itertools==10.5.0",
               "sha256": "5482bfef7849c25dc3c6dd53a6173ae4795da2a41a80faea6700d9f5846c5da6",
@@ -3800,7 +3800,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "nh3-0.2.18-cp37-abi3-macosx_10_12_x86_64.macosx_11_0_arm64.macosx_10_12_universal2.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "nh3==0.2.18",
               "sha256": "14c5a72e9fe82aea5fe3072116ad4661af5cf8e8ff8fc5ad3450f123e4925e86",
@@ -3824,7 +3824,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "nh3-0.2.18-cp37-abi3-macosx_10_12_x86_64.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "nh3==0.2.18",
               "sha256": "7b7c2a3c9eb1a827d42539aa64091640bd275b81e097cd1d8d82ef91ffa2e811",
@@ -3848,7 +3848,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "nh3-0.2.18-cp37-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "nh3==0.2.18",
               "sha256": "42c64511469005058cd17cc1537578eac40ae9f7200bedcfd1fc1a05f4f8c200",
@@ -3872,7 +3872,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "nh3-0.2.18-cp37-abi3-manylinux_2_17_armv7l.manylinux2014_armv7l.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "nh3==0.2.18",
               "sha256": "0411beb0589eacb6734f28d5497ca2ed379eafab8ad8c84b31bb5c34072b7164",
@@ -3896,7 +3896,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "nh3-0.2.18-cp37-abi3-manylinux_2_17_ppc64.manylinux2014_ppc64.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "nh3==0.2.18",
               "sha256": "5f36b271dae35c465ef5e9090e1fdaba4a60a56f0bb0ba03e0932a66f28b9189",
@@ -3920,7 +3920,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "nh3-0.2.18-cp37-abi3-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "nh3==0.2.18",
               "sha256": "34c03fa78e328c691f982b7c03d4423bdfd7da69cd707fe572f544cf74ac23ad",
@@ -3944,7 +3944,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "nh3-0.2.18-cp37-abi3-manylinux_2_17_s390x.manylinux2014_s390x.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "nh3==0.2.18",
               "sha256": "19aaba96e0f795bd0a6c56291495ff59364f4300d4a39b29a0abc9cb3774a84b",
@@ -3968,7 +3968,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "nh3-0.2.18-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "nh3==0.2.18",
               "sha256": "de3ceed6e661954871d6cd78b410213bdcb136f79aafe22aa7182e028b8c7307",
@@ -3992,7 +3992,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "nh3-0.2.18-cp37-abi3-musllinux_1_2_aarch64.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "nh3==0.2.18",
               "sha256": "f0eca9ca8628dbb4e916ae2491d72957fdd35f7a5d326b7032a345f111ac07fe",
@@ -4016,7 +4016,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "nh3-0.2.18-cp37-abi3-musllinux_1_2_armv7l.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "nh3==0.2.18",
               "sha256": "3a157ab149e591bb638a55c8c6bcb8cdb559c8b12c13a8affaba6cedfe51713a",
@@ -4040,7 +4040,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "nh3-0.2.18-cp37-abi3-musllinux_1_2_x86_64.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "nh3==0.2.18",
               "sha256": "36c95d4b70530b320b365659bb5034341316e6a9b30f0b25fa9c9eff4c27a204",
@@ -4064,7 +4064,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "nh3-0.2.18-cp37-abi3-win_amd64.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "nh3==0.2.18",
               "sha256": "8ce0f819d2f1933953fca255db2471ad58184a60508f03e6285e5114b6254844",
@@ -4092,7 +4092,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "nh3-0.2.18.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "nh3==0.2.18",
               "sha256": "94a166927e53972a9698af9542ace4e38b9de50c34352b962f4d9a7d4c927af4",
@@ -4116,7 +4116,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "pkginfo-1.10.0-py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "pkginfo==1.10.0",
               "sha256": "889a6da2ed7ffc58ab5b900d888ddce90bce912f2d2de1dc1c26f4cb9fe65097",
@@ -4144,7 +4144,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "pkginfo-1.10.0.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "pkginfo==1.10.0",
               "sha256": "5df73835398d10db79f8eecd5cd86b1f6d29317589ea70796994d49399af6297",
@@ -4165,7 +4165,7 @@
                 "cp311_linux_x86_64"
               ],
               "filename": "pycparser-2.22-py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "pycparser==2.22",
               "sha256": "c3702b6d3dd8c7abc1afa565d7e63d53a1d0bd86cdc24edd75470f4de499cfcc",
@@ -4190,7 +4190,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "pycparser-2.22.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "pycparser==2.22",
               "sha256": "491c8be9c040f5390f5bf44a5b07752bd07f56edf992381b05c701439eec10f6",
@@ -4214,7 +4214,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "pygments-2.18.0-py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "pygments==2.18.0",
               "sha256": "b8e6aca0523f3ab76fee51799c488e38782ac06eafcf95e7ba832985c8e7b13a",
@@ -4242,7 +4242,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "pygments-2.18.0.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "pygments==2.18.0",
               "sha256": "786ff802f32e91311bff3889f6e9a86e81505fe99f2735bb6d60ae0c5004f199",
@@ -4259,7 +4259,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "pywin32_ctypes-0.2.3-py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "pywin32-ctypes==0.2.3",
               "sha256": "8a1513379d709975552d202d942d9837758905c8d01eb82b8bcc30918929e7b8",
@@ -4280,7 +4280,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "pywin32-ctypes-0.2.3.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "pywin32-ctypes==0.2.3",
               "sha256": "d162dc04946d704503b2edc4d55f3dba5c1d539ead017afa00142c38b9885755",
@@ -4304,7 +4304,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "readme_renderer-44.0-py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "readme-renderer==44.0",
               "sha256": "2fbca89b81a08526aadf1357a8c2ae889ec05fb03f5da67f9769c9a592166151",
@@ -4332,7 +4332,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "readme_renderer-44.0.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "readme-renderer==44.0",
               "sha256": "8712034eabbfa6805cacf1402b4eeb2a73028f72d1166d6f5cb7f9c047c5d1e1",
@@ -4356,7 +4356,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "requests-2.32.3-py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "requests==2.32.3",
               "sha256": "70761cfe03c773ceb22aa2f671b4757976145175cdfca038c02654d061d6dcc6",
@@ -4384,7 +4384,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "requests-2.32.3.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "requests==2.32.3",
               "sha256": "55365417734eb18255590a9ff9eb97e9e1da868d4ccd6402399eaf68af20a760",
@@ -4408,7 +4408,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "requests_toolbelt-1.0.0-py2.py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "requests-toolbelt==1.0.0",
               "sha256": "cccfdd665f0a24fcf4726e690f65639d272bb0637b9b92dfd91a5568ccf6bd06",
@@ -4436,7 +4436,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "requests-toolbelt-1.0.0.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "requests-toolbelt==1.0.0",
               "sha256": "7681a0a3d047012b5bdc0ee37d7f8f07ebe76ab08caeccfc3921ce23c88d5bc6",
@@ -4460,7 +4460,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "rfc3986-2.0.0-py2.py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "rfc3986==2.0.0",
               "sha256": "50b1502b60e289cb37883f3dfd34532b8873c7de9f49bb546641ce9cbd256ebd",
@@ -4488,7 +4488,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "rfc3986-2.0.0.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "rfc3986==2.0.0",
               "sha256": "97aacf9dbd4bfd829baad6e6309fa6573aaf1be3f6fa735c8ab05e46cecb261c",
@@ -4512,7 +4512,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "rich-13.9.4-py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "rich==13.9.4",
               "sha256": "6049d5e6ec054bf2779ab3358186963bac2ea89175919d699e378b99738c2a90",
@@ -4540,7 +4540,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "rich-13.9.4.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "rich==13.9.4",
               "sha256": "439594978a49a09530cff7ebc4b5c7103ef57baf48d5ea3184f21d9a2befa098",
@@ -4561,7 +4561,7 @@
                 "cp311_linux_x86_64"
               ],
               "filename": "SecretStorage-3.3.3-py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "secretstorage==3.3.3",
               "sha256": "f356e6628222568e3af06f2eba8df495efa13b3b63081dafd4f7d9a7b7bc9f99",
@@ -4586,7 +4586,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "SecretStorage-3.3.3.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "secretstorage==3.3.3",
               "sha256": "2403533ef369eca6d2ba81718576c5e0f564d5cca1b58f73a8b23e7d4eeebd77",
@@ -4610,7 +4610,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "twine-5.1.1-py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "twine==5.1.1",
               "sha256": "215dbe7b4b94c2c50a7315c0275d2258399280fbb7d04182c7e55e24b5f93997",
@@ -4638,7 +4638,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "twine-5.1.1.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "twine==5.1.1",
               "sha256": "9aa0825139c02b3434d913545c7b847a21c835e11597f5255842d457da2322db",
@@ -4662,7 +4662,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "urllib3-2.2.3-py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "urllib3==2.2.3",
               "sha256": "ca899ca043dcb1bafa3e262d73aa25c465bfb49e0bd9dd5d59f1d0acba2f8fac",
@@ -4690,7 +4690,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "urllib3-2.2.3.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "urllib3==2.2.3",
               "sha256": "e7d814a81dad81e6caf2ec9fdedb284ecc9c73076b62654547cc64ccdcae26e9",
@@ -4714,7 +4714,7 @@
                 "cp311_windows_x86_64"
               ],
               "filename": "zipp-3.20.2-py3-none-any.whl",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "zipp==3.20.2",
               "sha256": "a817ac80d6cf4b23bf7f2828b7cabf326f15a001bea8b1f9b49631780ba28350",
@@ -4742,7 +4742,7 @@
                 "https://pypi.org/simple"
               ],
               "filename": "zipp-3.20.2.tar.gz",
-              "python_interpreter_target": "@@rules_python++python2+python_3_11_host//:python",
+              "python_interpreter_target": "@@rules_python++python+python_3_11_host//:python",
               "repo": "rules_python_publish_deps_311",
               "requirement": "zipp==3.20.2",
               "sha256": "bc9eb26f4506fda01b81bcde0ca78103b6e62f991b381fec825435c836edbc29",
@@ -4958,32 +4958,32 @@
           [
             "rules_python+",
             "pythons_hub",
-            "rules_python++python2+pythons_hub"
+            "rules_python++python+pythons_hub"
           ],
           [
-            "rules_python++python2+pythons_hub",
+            "rules_python++python+pythons_hub",
             "python_3_10_host",
-            "rules_python++python2+python_3_10_host"
+            "rules_python++python+python_3_10_host"
           ],
           [
-            "rules_python++python2+pythons_hub",
+            "rules_python++python+pythons_hub",
             "python_3_11_host",
-            "rules_python++python2+python_3_11_host"
+            "rules_python++python+python_3_11_host"
           ],
           [
-            "rules_python++python2+pythons_hub",
+            "rules_python++python+pythons_hub",
             "python_3_12_host",
-            "rules_python++python2+python_3_12_host"
+            "rules_python++python+python_3_12_host"
           ],
           [
-            "rules_python++python2+pythons_hub",
+            "rules_python++python+pythons_hub",
             "python_3_8_host",
-            "rules_python++python2+python_3_8_host"
+            "rules_python++python+python_3_8_host"
           ],
           [
-            "rules_python++python2+pythons_hub",
+            "rules_python++python+pythons_hub",
             "python_3_9_host",
-            "rules_python++python2+python_3_9_host"
+            "rules_python++python+python_3_9_host"
           ]
         ]
       }

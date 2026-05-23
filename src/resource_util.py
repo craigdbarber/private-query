@@ -1,3 +1,5 @@
+"""Provides functionality for resolving runtime resources."""
+
 import os
 from pathlib import Path
 
@@ -43,7 +45,8 @@ def load_directory(dir_path: str | None = None) -> Path:
     # case bazel env
     if "RUNFILES_DIR" in os.environ or "TEST_SRCDIR" in os.environ:
         rf = runfiles.Create()
-        assert rf
+        if rf is None:
+            raise RuntimeError("Bazel runtime files could not be created.")
         workspace_name = rf.CurrentRepository()
         if not workspace_name:
             workspace_name = os.environ.get("TEST_WORKSPACE", "")

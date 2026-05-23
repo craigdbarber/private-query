@@ -1,57 +1,92 @@
 """Provides utility functionality for loading configuration data."""
 
-from typing import cast
+import types
+import typing
+from typing import Any, TypeGuard, get_args, get_origin
+from typing import Any as TypingAny
 
 import yaml
+from loguru import logger
 
-type NestedDict = dict[str, str | NestedDict]
 
-
-def get_config_dict(
-    config: NestedDict, name: str, raise_error: bool = True
-) -> NestedDict | None:
-    """Attempt to retrieve the configuration dictionary value with the specified name.
+def _is_expected_type[T](value: Any, expected_type: type[T]) -> TypeGuard[T]:
+    """Return whether the value is of the expected type.
 
     Args:
-        config: The configuration dict to retrieve the value from.
+        value: The value to be tested.
+        expected_type: The expected type.
+
+    Returns: Whether the value is of expected type.
+
+    """
+    if expected_type is TypingAny:
+        return True
+
+    origin = get_origin(expected_type) or expected_type
+    # handle unions
+    if origin in (types.UnionType, typing.Union):
+        return any(_is_expected_type(value, arg) for arg in get_args(expected_type))
+
+    # standard runtime check
+    try:
+        return isinstance(value, origin)
+    except TypeError:
+        # fallback for unexpected edge case
+        return False
+
+
+def get_config_value[T](config: dict[str, Any], name: str, expected_type: type[T]) -> T:
+    """Return the requested value from the config. Performs type checking
+    of the retrieved value against the expected type.
+
+    Args:
+        config: The dictionary the value will be retrieved from.
         name: The name of the value to be retrieved.
-        raise_error: If an error should be raised when the requested value is not found.
-    Returns: The retrieved value.
+        expected_type: The expected type of the value.
+
+    Returns: The type checked requested value.
 
     Raises:
-        ValueError: If the requested value is missing.
+        KeyError: If the specified name could not be found in the config.
+        TypeError: If the type of the value does not match expected_type.
 
     """
-    value = _get_config_value(config, name, raise_error)
-    if value is None:
-        return None
-    return cast(NestedDict, value)
+    try:
+        value = config[name]
+    except KeyError as ke:
+        logger.error(f"Failed to retrieve config value, missing name: {name}")
+        raise ke
+    if not _is_expected_type(value, expected_type):
+        logger.error(f"Failed to retrieve config value, unexpected type: {type(value)}")
+        raise TypeError(f"Expected type: {type(T)} got: {type(value)}")
+    return value
 
 
-def get_config_str(
-    config: NestedDict, name: str, raise_error: bool = True
-) -> str | None:
-    """Attempt to retrieve the configuration value with the specified name.
-    If the specified value is not found and raise_error is True, will raise ValueError.
+def get_config_value_or_none[T](
+    config: dict[str, Any], name: str, expected_type: type[T]
+) -> T | None:
+    """Return the requested value from the config if exists, or else none.
 
     Args:
-            config: The configuration dictionary to retrieve the value from.
-            name: The name of the value to be retrieved.
-            raise_error: If this function should raise an error if the requested
-            value is missing.
-    Returns: The retrieved configuration value.
+        config: The dictionary the value will be retrieved from.
+        name: The name of the value to be retrieved.
+        expected_type: The expected type of the value.
+
+    Returns: The type checked requested value.
 
     Raises:
-            ValueError: If the requested value is missing.
+        TypeError: If the type of the value does not match expected_type.
 
     """
-    value = _get_config_value(config, name, raise_error)
-    if value is None:
-        return None
-    return cast(str, value)
+    value: T | None
+    try:
+        value = get_config_value(config, name, expected_type)
+    except KeyError:
+        value = None
+    return value
 
 
-def load_yaml_config(file_path: str) -> NestedDict:
+def load_yaml_config(file_path: str) -> dict[str, Any]:
     """Read the yaml file at the specified path and parses it into a dictionary.
 
     Args:
@@ -64,14 +99,3 @@ def load_yaml_config(file_path: str) -> NestedDict:
     """
     with open(file=file_path, encoding="utf-8") as file:
         return yaml.safe_load(file)
-
-
-def _get_config_value(
-    config: NestedDict, name: str, raise_error: bool = True
-) -> str | NestedDict | None:
-    value = config.get(name)
-    if value is not None:
-        return value
-    if raise_error:
-        raise ValueError(f"Missing config value: {name}")
-    return None

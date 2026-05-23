@@ -4,12 +4,13 @@ import os
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any
 
 import typer
+from loguru import logger
 
-import config_util
 from chroma_util import ChromaClient
+from config_util import get_config_value, load_yaml_config
 from ollama_util import OllamaClient
 from private_query import PrivateQuery
 
@@ -31,35 +32,24 @@ class _SessionData:
     ollama: OllamaClient
     private_query: PrivateQuery
     collection_name: str
-    verbose: bool
 
 
-def _log(message: str, verbose: bool):
-    if verbose:
-        typer.echo(message)
-
-
-def _initialize_session(config_path: Path, verbose: bool) -> _SessionData:
-    config = config_util.load_yaml_config(str(config_path))
-    settings = config_util.get_config_dict(config, "settings")
-    assert settings is not None
-    collection_name = config_util.get_config_str(settings, "collection_name")
-    assert collection_name is not None
-    _log("[SESSION INIT]: Loading ChromaDB client...", verbose)
-    chroma_config = config_util.get_config_dict(settings, "chroma")
-    assert chroma_config is not None
+def _initialize_session(config_path: Path) -> _SessionData:
+    config = load_yaml_config(str(config_path))
+    settings = get_config_value(config, "settings", dict[str, Any])
+    collection_name = get_config_value(settings, "collection_name", str)
+    logger.info("[SESSION INIT]: Loading ChromaDB client...")
+    chroma_config = get_config_value(settings, "chroma", dict[str, str])
     chroma = ChromaClient(chroma_config)
-    _log("[SESSION INIT]: Loading Ollama client...", verbose)
-    ollama_config = config_util.get_config_dict(settings, "ollama")
-    assert ollama_config is not None
+    logger.info("[SESSION INIT]: Loading Ollama client...")
+    ollama_config = get_config_value(settings, "ollama", dict[str, str])
     ollama = OllamaClient(ollama_config)
-    _log("[SESSION INIT]: Loading Private Query...", verbose)
+    logger.info("[SESSION INIT]: Loading Private Query...")
     private_query = PrivateQuery(chroma, ollama)
     return _SessionData(
         chroma=chroma,
         ollama=ollama,
         private_query=private_query,
-        verbose=verbose,
         collection_name=collection_name,
     )
 
@@ -77,9 +67,12 @@ def global_options(
                 $PRIVATE_QUERY_CONFIG, Default.",
         ),
     ] = None,
-    verbose: Annotated[
-        bool, typer.Option("--verbose", "-v", help="Enable debug logging.")
-    ] = False,  # workaround for typer bug with bool default value :S
+    info_log: Annotated[
+        bool, typer.Option("--info", help="Enable INFO logging.")
+    ] = False,
+    debug_log: Annotated[
+        bool, typer.Option("--debug", help="Enabled DEBUG logging.")
+    ] = False,
 ):
     """Global setup context."""
     if ctx.invoked_subcommand == "help" or "--help" in sys.argv or "-h" in sys.argv:
@@ -91,7 +84,15 @@ def global_options(
     else:
         resolved_config_path = Path.cwd() / _DEFAULT_CONFIG_FILE
 
-    ctx.obj = _initialize_session(resolved_config_path, verbose)
+    logger.remove(0)
+    if debug_log:
+        logger.add(sys.stderr, level="DEBUG")
+    elif info_log:
+        logger.add(sys.stderr, level="INFO")
+    else:
+        logger.add(sys.stderr, level="WARNING")
+
+    ctx.obj = _initialize_session(resolved_config_path)
 
 
 @app.command()
@@ -116,10 +117,6 @@ def load(
     else:
         files.append(Path(path).resolve())
     session_data: _SessionData = ctx.obj
-    log_msg = "Loading and embedding documents:\n\n"
-    for file in files:
-        log_msg += f"{file}\n\n"
-    _log(log_msg, session_data.verbose)
     session_data.private_query.embed_documents(
         collection_name=session_data.collection_name, document_paths=files
     )
@@ -132,8 +129,7 @@ def query(
 ):
     """Excute the specified prompt."""
     session_data: _SessionData = ctx.obj
-    _log("Executing query...\n\n", session_data.verbose)
-    print("\n\nThinking...\n\n")
+    print("Thinking...\n")
     print(
         session_data.private_query.process_prompt(
             prompt=prompt, collection_name=session_data.collection_name
@@ -145,8 +141,8 @@ def query(
 def show_help(ctx: typer.Context):
     """Show the help message."""
     parent = ctx.parent
-    assert parent
-    typer.echo(parent.get_help())
+    if parent is not None:
+        typer.echo(parent.get_help())
 
 
 if __name__ == "__main__":

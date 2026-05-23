@@ -3,11 +3,12 @@
 import os
 import shlex
 import subprocess
-import time
 from pathlib import Path
 
 import psutil
+from loguru import logger
 from runfiles import runfiles
+from tenacity import retry, stop_after_attempt, wait_random_exponential
 
 
 def load_test_data_dir(data_dir: str | None = None) -> Path:
@@ -22,8 +23,10 @@ def load_test_data_dir(data_dir: str | None = None) -> Path:
         FileNotFoundError: If the specified relative path does not exist.
 
     """
+    logger.info("Loading test data dir: {data_dir}")
     # check if running under bazel
     if "RUNFILES_DIR" in os.environ or "RUNFILES_MANIFEST_FILE" in os.environ:
+        logger.info("Attempting to load resource from bazel env.")
         rf = runfiles.Create()
         assert rf
         current_repo = rf.CurrentRepository()
@@ -38,6 +41,7 @@ def load_test_data_dir(data_dir: str | None = None) -> Path:
                 return Path(root_path).resolve()
 
     # fallback to standard pytest exeuction from the project root
+    logger.info("Attempting to load resource from python env.")
     project_root = Path(__file__).parent.parent
     if data_dir:
         data_dir_path = project_root / data_dir
@@ -47,6 +51,7 @@ def load_test_data_dir(data_dir: str | None = None) -> Path:
         return project_root.resolve()
 
     # if the specified data directory could not be found, raise an error
+    logger.error(f"Failed to load test data dir: {data_dir}")
     raise FileNotFoundError(f"Failed to load test directory: {data_dir}")
 
 
@@ -63,33 +68,35 @@ def start_local_ollama(host: str, home_dir: Path):
 
     scripts_dir_path = load_test_data_dir("scripts")
     start_script_path = (scripts_dir_path / "start_ollama.sh").resolve()
-    # start_script_path = load_test_resource("scripts/start_ollama.sh")
-    subprocess.run(  # noqa: S603
-        [
-            str(start_script_path),
-            "--host",
-            shlex.quote(host),
-            "--ollama_home_dir",
-            shlex.quote(str(home_dir)),
-        ],
-        check=True,
+    logger.info(
+        f"Starting ollama service, host: {host} start_script_path: {start_script_path}"
     )
-    # verify ollama is running before returning
-    max_attempts = 3
-    attempts = 0
-    retry_delay = 1
-    success = False
-    while not success and attempts < max_attempts:
-        if is_process_running("ollama"):
-            success = True
-        else:
-            time.sleep(retry_delay)
-            attempts += 1
-    if not success:
-        raise RuntimeError(
+
+    try:
+        subprocess.run(  # noqa: S603
+            [
+                str(start_script_path),
+                "--host",
+                shlex.quote(host),
+                "--ollama_home_dir",
+                shlex.quote(str(home_dir)),
+            ],
+            check=True,
+        )
+    except Exception as e:
+        logger.error(
             f"Failed to start ollama service: host: {host} start_script_path:\
                   {start_script_path}"
         )
+        raise RuntimeError("Failed to start ollama service") from e
+
+    @retry(wait=wait_random_exponential(max=10), stop=stop_after_attempt(3))
+    def wait_ollama_started():
+        if not is_process_running("ollama"):
+            raise TimeoutError("Timed out waiting for ollama service to start.")
+
+    # verify ollama is running before returning
+    wait_ollama_started()
 
 
 def is_process_running(name: str) -> bool:

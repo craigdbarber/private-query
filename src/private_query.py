@@ -2,6 +2,8 @@
 
 from pathlib import Path
 
+from loguru import logger
+
 from chroma_util import ChromaClient
 from ollama_util import OllamaClient
 
@@ -39,7 +41,10 @@ class PrivateQuery:
         ids: list[str] = []
         metadatas: list[dict] = []
 
+        logger.info("Processing documents:")
+
         for path in document_paths:
+            logger.info(f"Processing doc: {path}")
             with open(path, encoding="UTF-8") as file:
                 text = file.read()
                 file_path = str(Path(file.name))
@@ -49,6 +54,7 @@ class PrivateQuery:
                     ids.append(f"id_{file_path}_{idx}")
                     metadatas.append({"path": file_path})
 
+        logger.info(f"Batch upserting documents into collection: {collection_name}")
         self._chroma.batched_upsert(
             collection_name=collection_name,
             documents=docs,
@@ -68,6 +74,7 @@ class PrivateQuery:
 
         """
         # query for context from the vector db
+        logger.info(f"Querying vector collection: {collection_name}")
         collection = self._chroma.get_or_create_collection(collection_name)
         query_results = collection.query(
             query_texts=[prompt], include=["documents", "metadatas"]
@@ -83,8 +90,11 @@ class PrivateQuery:
             if query_results["metadatas"] is not None
             else []
         )
+        results_zip = list(zip(result_docs, result_metadatas))
+        logger.info(f"Query results len: {len(results_zip)}")
         context = ""
-        for doc, metadata in zip(result_docs, result_metadatas):
+        for doc, metadata in results_zip:
+            logger.info(f"Query result path: {metadata['path']}")
             context += f"\n\npath: {metadata['path']}"
             context += f"\n\ndocument: {doc}"
 
@@ -93,13 +103,15 @@ class PrivateQuery:
         contained in a local set of documents. Answer the question below only using the
         provided context. Provide a descriptive and complete answer, including a final
         summary. Do not include the exact contents of context documents in your answer,
-        just include your synopsis and explanation. If the context does not contain
+        just include your synopsis and explanation. Do not include mention of source
+        documents in-line with your answer. If the context does not contain
         enough information to accurately answer the question, say so clearly. After the
         summary, include a well formatted references section which provides a list of
         the unique file paths from the context used to generate your answer, making sure
         to just include the file paths not the contents of the documents, also
-        making sure to format each so that it is prefixed with "* " and enclosed in
-        quotes.
+        making sure to format each as follows: "* [file path]". If you could not
+        provide an answer due to lack of context information, omit the references
+        section.
 
         Context:
         {context}
