@@ -16,20 +16,25 @@ alias(
 
 # project targets
 
-# py_library(
-#     name = "transformer_util",
-#     srcs = ["src/transformer_util.py"],
-#     deps = [
-#         "@pypi//pypdf",
-#         "@pypi//python-docx",
-#     ],
-# )
+py_library(
+    name = "transformer_util",
+    srcs = ["src/transformer_util.py"],
+    deps = [
+        "@pypi//pypdf",
+        "@pypi//python_docx",
+        "@pypi//loguru",
+    ],
+)
 
-# py_test(
-#     name = "test_transformer_util",
-#     srcs = ["tests/test_transformer_util.py"],
-#     deps = [":transformer_util"],
-# )
+py_test(
+    name = "test_transformer_util",
+    srcs = ["tests/test_transformer_util.py"],
+    deps = [
+        ":transformer_util",
+        "@pypi//python_docx",
+        "@pypi//reportlab",
+    ],
+)
 
 py_library(
     name = "test_util",
@@ -119,7 +124,7 @@ py_library(
         ":chroma_util",
         ":config_util",
         ":ollama_util",
-        ":test_util",
+        ":transformer_util",
         "@pypi//chromadb",
         "@pypi//loguru",
     ],
@@ -134,6 +139,7 @@ py_test(
         ":config_util",
         ":ollama_util",
         ":private_query_lib",
+        ":test_util",
     ],
     tags = ["exclusive"],
 )

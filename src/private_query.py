@@ -6,6 +6,7 @@ from loguru import logger
 
 from chroma_util import ChromaClient
 from ollama_util import OllamaClient
+from transformer_util import extract_text_from_file
 
 
 class PrivateQuery:
@@ -44,15 +45,15 @@ class PrivateQuery:
         logger.info("Processing documents:")
 
         for path in document_paths:
-            logger.info(f"Processing doc: {path}")
-            with open(path, encoding="UTF-8") as file:
-                text = file.read()
-                file_path = str(Path(file.name))
-                chunks = self._chroma.chunk_text_by_tokens(text)
-                for idx, chunk in enumerate(chunks):
-                    docs.append(chunk)
-                    ids.append(f"id_{file_path}_{idx}")
-                    metadatas.append({"path": file_path})
+            resolved_path = path.resolve()
+            logger.info(f"Processing doc: {resolved_path}")
+            text = extract_text_from_file(resolved_path)
+
+            chunks = self._chroma.chunk_text_by_tokens(text)
+            for idx, chunk in enumerate(chunks):
+                docs.append(chunk)
+                ids.append(f"id_{str(resolved_path)}_{idx}")
+                metadatas.append({"path": str(resolved_path)})
 
         logger.info(f"Batch upserting documents into collection: {collection_name}")
         self._chroma.batched_upsert(
