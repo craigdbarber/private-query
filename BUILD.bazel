@@ -52,6 +52,7 @@ py_library(
     name = "config_util",
     srcs = ["src/config_util.py"],
     deps = [
+        ":transformer_util",
         "@pypi//pyyaml",
         "@pypi//loguru",
         ],

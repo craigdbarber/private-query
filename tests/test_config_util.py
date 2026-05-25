@@ -64,7 +64,7 @@ def test_get_config_value_or_none_returns_none():
 
 def test_load_yaml_config_loads_str():
     """Test successfully loads yaml config."""
-    with tempfile.NamedTemporaryFile(mode="w+t") as tmp:
+    with tempfile.NamedTemporaryFile(mode="w+t", suffix=".yaml") as tmp:
         tmp.write("""
 test_config: "test_value"
                   """)
@@ -84,7 +84,7 @@ def test_load_yaml_config_returns_raises_fnf_error():
 
 def test_load_yaml_config_loads_full_config():
     """Tests loading a project config."""
-    with tempfile.NamedTemporaryFile(mode="w+t") as tmp:
+    with tempfile.NamedTemporaryFile(mode="w+t", suffix=".yaml") as tmp:
         tmp.write("""
 settings:
   collection_name: "private-query-collection"

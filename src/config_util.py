@@ -1,38 +1,16 @@
 """Provides utility functionality for loading configuration data."""
 
+import io
 import types
 import typing
+from pathlib import Path
 from typing import Any, TypeGuard, get_args, get_origin
 from typing import Any as TypingAny
 
 import yaml
 from loguru import logger
 
-
-def _is_expected_type[T](value: Any, expected_type: type[T]) -> TypeGuard[T]:
-    """Return whether the value is of the expected type.
-
-    Args:
-        value: The value to be tested.
-        expected_type: The expected type.
-
-    Returns: Whether the value is of expected type.
-
-    """
-    if expected_type is TypingAny:
-        return True
-
-    origin = get_origin(expected_type) or expected_type
-    # handle unions
-    if origin in (types.UnionType, typing.Union):
-        return any(_is_expected_type(value, arg) for arg in get_args(expected_type))
-
-    # standard runtime check
-    try:
-        return isinstance(value, origin)
-    except TypeError:
-        # fallback for unexpected edge case
-        return False
+from transformer_util import extract_text_from_file
 
 
 def get_config_value[T](config: dict[str, Any], name: str, expected_type: type[T]) -> T:
@@ -52,13 +30,10 @@ def get_config_value[T](config: dict[str, Any], name: str, expected_type: type[T
 
     """
     try:
-        value = config[name]
+        value = _get_config_value(config, name, expected_type)
     except KeyError as ke:
         logger.error(f"Failed to retrieve config value, missing name: {name}")
         raise ke
-    if not _is_expected_type(value, expected_type):
-        logger.error(f"Failed to retrieve config value, unexpected type: {type(value)}")
-        raise TypeError(f"Expected type: {type(T)} got: {type(value)}")
     return value
 
 
@@ -80,22 +55,46 @@ def get_config_value_or_none[T](
     """
     value: T | None
     try:
-        value = get_config_value(config, name, expected_type)
+        value = _get_config_value(config, name, expected_type)
     except KeyError:
         value = None
     return value
 
 
-def load_yaml_config(file_path: str) -> dict[str, Any]:
+def load_yaml_config(file_path: str | Path) -> dict[str, Any]:
     """Read the yaml file at the specified path and parses it into a dictionary.
 
     Args:
         file_path: The path of the yaml file to be loaded.
     Returns: The dictionary parsed from the specified YAML file.
 
-    Raises:
-        FileNotFoundError: If the specified file path doesn't exists.
-
     """
-    with open(file=file_path, encoding="utf-8") as file:
-        return yaml.safe_load(file)
+    file_path = Path(file_path).resolve()
+    return yaml.safe_load(io.StringIO(extract_text_from_file(file_path)))
+
+
+def _get_config_value[T](
+    config: dict[str, Any], name: str, expected_type: type[T]
+) -> T:
+    value = config[name]
+    if not _is_expected_type(value, expected_type):
+        logger.error(f"Failed to retrieve config value, unexpected type: {type(value)}")
+        raise TypeError(f"Expected type: {type(T)} got: {type(value)}")
+    return value
+
+
+def _is_expected_type[T](value: Any, expected_type: type[T]) -> TypeGuard[T]:
+    if expected_type is TypingAny:
+        return True
+
+    origin = get_origin(expected_type) or expected_type
+    # handle unions
+    if origin in (types.UnionType, typing.Union):
+        return any(_is_expected_type(value, arg) for arg in get_args(expected_type))
+
+    # standard runtime check
+    try:
+        return isinstance(value, origin)
+    except TypeError:
+        # fallback for unexpected edge case
+        return False

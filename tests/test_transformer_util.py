@@ -65,17 +65,6 @@ def test_extract_text_from_file_raises_perm_error():
         extract_text_from_file(tmp_path)
 
 
-def test_extract_text_from_file_raises_value_error_unsupported_type():
-    """Test raises ValueError for unsupported file type."""
-    with (
-        pytest.raises(ValueError, match=r"Unsupported file type:.*"),
-        tempfile.NamedTemporaryFile(mode="r", suffix=".foobaz") as tmp,
-    ):
-        tmp_path = Path(tmp.name).resolve()
-        tmp_path.touch()
-        extract_text_from_file(tmp_path)
-
-
 def test_extract_text_from_file_raises_value_error_not_file():
     """Test raises ValueError for not a file."""
     with (

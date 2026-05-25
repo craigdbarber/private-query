@@ -19,8 +19,7 @@ def extract_text_from_file(file: str | Path) -> str:
 
     Raises:
         RuntimeError: If the file type is not supported.
-        ValueError: If the file path is not a file, or the file type
-        is not supported.
+        ValueError: If the file path is not a file.
         FileNotFoundError: If the file does not exist.
         PermissionError: If the file could not be opened.
 
@@ -28,7 +27,6 @@ def extract_text_from_file(file: str | Path) -> str:
     file_extractors: dict[str, Callable[[str | Path], str]] = {
         ".pdf": extract_text_from_pdf,
         ".docx": extract_text_from_docx,
-        ".txt": extract_text_from_txt,
     }
     file_path = Path(file)
 
@@ -45,13 +43,17 @@ def extract_text_from_file(file: str | Path) -> str:
         err_msg = f"Could not open file: {file}"
         logger.error(err_msg)
         raise PermissionError(err_msg)
-    if file_path.suffix not in file_extractors:
-        err_msg = f"Unsupported file type: {file_path.suffix}"
-        logger.error(err_msg)
-        raise ValueError(err_msg)
-
     logger.info(f"Extracting text from file: {file}")
-    return file_extractors[file_path.suffix](file_path)
+    try:
+        extractor = file_extractors.get(file_path.suffix)
+        if extractor is not None:
+            # attempt to use a specialized extractor
+            return extractor(file_path)
+        # default to plain text
+        return extract_text_from_txt(file_path)
+    except UnicodeDecodeError as ude:
+        logger.error(f"Failed to decode file: {file}")
+        raise ude
 
 
 def extract_text_from_txt(txt_path: str | Path) -> str:
