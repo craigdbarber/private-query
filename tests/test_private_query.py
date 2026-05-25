@@ -62,19 +62,19 @@ ollama:
 def test_embed_documents(session_data: _SessionData):
     """Test embed_documents."""
     test_data_dir = load_test_data_dir("tests/data")
-    test_txt_files = list(test_data_dir.glob("*.txt"))
-    assert test_txt_files and len(test_txt_files) > 0
+    test_data_files = list(test_data_dir.glob("*"))
+    assert test_data_files and len(test_data_files) > 0
     collection_name = "test_embed_documents"
 
     ids = session_data.private_query.embed_documents(
-        collection_name=collection_name, document_paths=test_txt_files
+        collection_name=collection_name, document_paths=test_data_files
     )
     collection = session_data.chroma.get_or_create_collection(collection_name)
     result = collection.get(ids)
     result_docs = result["documents"]
 
     assert result_docs
-    assert len(result_docs) >= len(test_txt_files)
+    assert len(result_docs) >= len(test_data_files)
     for doc in result_docs:
         assert str(doc.encode(encoding="UTF-8"))
     result_ids = result["ids"]
@@ -94,7 +94,7 @@ def test_process_prompt(session_data: _SessionData):
     )
 
     response = session_data.private_query.process_prompt(
-        prompt="How much memory did the Apple II come with standard?",
+        prompt="Who was sherlock holmes?",
         collection_name=collection_name,
     )
     assert response

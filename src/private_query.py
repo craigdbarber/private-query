@@ -107,12 +107,12 @@ class PrivateQuery:
         just include your synopsis and explanation. Do not include mention of source
         documents in-line with your answer. If the context does not contain
         enough information to accurately answer the question, say so clearly. After the
-        summary, include a well formatted references section which provides a list of
+        summary, include a well formatted references section which provides a set of
         the unique file paths from the context used to generate your answer, making sure
         to just include the file paths not the contents of the documents, also
-        making sure to format each as follows: "* [file path]". If you could not
-        provide an answer due to lack of context information, omit the references
-        section.
+        making sure to format each as follows: "* [file path]". Do not repeat file paths
+        in the references section. If you could not provide an answer due to lack of
+        context information, omit the references section.
 
         Context:
         {context}
