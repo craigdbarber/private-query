@@ -20,6 +20,8 @@ dependencies = [
     "loguru>=0.7.3",
     "tenacity>=9.1.4",
     "reportlab>=4.5.1",
+    "pydantic>=2.13.4",
+    "bazel-runfiles>=2.0.1",
 ]
 
 [dependency-groups]
@@ -34,7 +36,6 @@ dev = [
     "setuptools",
     "cython>=3.2.4",
     "puccinialin",
-    "bazel-runfiles>=2.0.1",
     "ty>=0.0.39",
     "taskipy>=1.2.1",
     "coverage>=7.14.0",

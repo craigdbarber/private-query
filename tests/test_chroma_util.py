@@ -6,20 +6,20 @@ from dataclasses import dataclass
 
 import pytest
 
-from chroma_util import ChromaClient
+from chroma_util import ChromaClient, ChromaClientConfig
 from config_util import load_yaml_config
 
 
 # The test chroma client for the session
 @dataclass
-class _SessionData:
+class _ChromaSessionData:
     client: ChromaClient
 
 
-@pytest.fixture(scope="session", name="session_data")
+@pytest.fixture(scope="session", name="chroma_session_data")
 def suite_setup_teardown(
     tmp_path_factory: pytest.TempPathFactory,
-) -> Generator[_SessionData, None, None]:
+) -> Generator[_ChromaSessionData, None, None]:
     """Set up chroma client for test session."""
     # suite setup
     tmp_persist_dir = tmp_path_factory.mktemp("persist_dir")
@@ -27,29 +27,31 @@ def suite_setup_teardown(
     tmp_config_dir = tmp_path_factory.mktemp("config")
     tmp_config = tmp_config_dir / "config.yaml"
     tmp_config.write_text(f"""
-type: "local"
-persist_directory: "{tmp_persist_dir}"
 embedding_model: "all-MiniLM-L6-v2"
 embedding_model_revision: "c9745ed1d9f207416be6d2e6f8de32d1f16199bf"
 model_cache_directory: "{tmp_cache_dir}"
+database:
+  type: "local"
+  persist_directory: "{tmp_persist_dir}"
                 """)
-    chroma_config = load_yaml_config(str(tmp_config.absolute()))
+    yaml_config = load_yaml_config(str(tmp_config.absolute()))
+    chroma_config = ChromaClientConfig.model_validate(yaml_config)
     client = ChromaClient(chroma_config)
     assert client
 
-    yield _SessionData(client=client)
+    yield _ChromaSessionData(client=client)
 
 
-def test_client_setup(session_data: _SessionData):
+def test_client_setup(chroma_session_data: _ChromaSessionData):
     """Test client is successfully setup."""
-    client = session_data.client
+    client = chroma_session_data.client
     assert client
     assert client.is_alive()
 
 
-def test_get_or_create_collection(session_data: _SessionData):
+def test_get_or_create_collection(chroma_session_data: _ChromaSessionData):
     """Test get_or_create_collection."""
-    client = session_data.client
+    client = chroma_session_data.client
     collection = client.get_or_create_collection("test_collection")
     assert collection
     assert collection.name == "test_collection"
@@ -61,9 +63,9 @@ def test_get_or_create_collection(session_data: _SessionData):
     assert same_collection.name == "test_collection"
 
 
-def test_batched_upsert(session_data: _SessionData):
+def test_batched_upsert(chroma_session_data: _ChromaSessionData):
     """Test batched_upsert."""
-    client = session_data.client
+    client = chroma_session_data.client
     docs: list[str] = []
     metadatas: list[dict[str, str]] = []
     ids: list[str] = []
@@ -92,7 +94,7 @@ def test_batched_upsert(session_data: _SessionData):
     )
 
 
-def test_chunk_text_by_tokens(session_data: _SessionData):
+def test_chunk_text_by_tokens(chroma_session_data: _ChromaSessionData):
     """Test chunk_text_by_tokens."""
     word_pool = [
         "apple",
@@ -105,7 +107,7 @@ def test_chunk_text_by_tokens(session_data: _SessionData):
         "river",
     ]
     document = " ".join(random.choices(word_pool, k=1000))  # noqa: S311
-    chunks = session_data.client.chunk_text_by_tokens(document)
+    chunks = chroma_session_data.client.chunk_text_by_tokens(document)
     assert chunks
     assert len(chunks) != 0
     assert all(chunk for chunk in chunks)

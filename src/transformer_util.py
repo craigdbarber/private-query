@@ -45,15 +45,12 @@ def extract_text_from_file(file: str | Path) -> str:
         raise PermissionError(err_msg)
     logger.info(f"Extracting text from file: {file}")
     try:
-        extractor = file_extractors.get(file_path.suffix)
-        if extractor is not None:
-            # attempt to use a specialized extractor
-            return extractor(file_path)
-        # default to plain text
-        return extract_text_from_txt(file_path)
-    except UnicodeDecodeError as ude:
-        logger.error(f"Failed to decode file: {file}")
-        raise ude
+        extractor = file_extractors.get(file_path.suffix) or extract_text_from_txt
+        return extractor(file_path)
+    except Exception as e:
+        err_msg = f"Failed to extract text from file: {file}"
+        logger.error(err_msg)
+        raise RuntimeError(err_msg) from e
 
 
 def extract_text_from_txt(txt_path: str | Path) -> str:
@@ -78,9 +75,6 @@ def extract_text_from_docx(docx_path: str | Path) -> str:
 
     """
     file = Path(docx_path)
-    if not file.exists():
-        raise FileNotFoundError(f"The docx path: {docx_path} does not exists.")
-
     doc = docx.Document(str(file))
     extracted_text: list[str] = []
     for paragraph in doc.paragraphs:
@@ -108,10 +102,5 @@ def extract_text_from_pdf(pdf_path: str | Path) -> str:
 
     """
     file = Path(pdf_path)
-    if not file.exists():
-        raise FileNotFoundError(f"The pdf path: {pdf_path} does not exist.")
     reader = PdfReader(file)
-    text = ""
-    for page in reader.pages:
-        text += page.extract_text() or ""
-    return text
+    return "".join(page.extract_text() or "" for page in reader.pages)

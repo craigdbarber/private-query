@@ -1,18 +1,19 @@
 """A command line application for utilizing the private-query system."""
 
-import os
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Annotated
 
 import typer
 from loguru import logger
+from pydantic import BaseModel
 
-from chroma_util import ChromaClient
-from config_util import get_config_value, load_yaml_config
-from ollama_util import OllamaClient
+from chroma_util import ChromaClient, ChromaClientConfig
+from config_util import load_yaml_config
+from ollama_util import OllamaClient, OllamaClientConfig
 from private_query import PrivateQuery
+from resource_util import resolve_resource
 
 _DEFAULT_CONFIG_FILE = "config.yaml"
 
@@ -28,27 +29,27 @@ app = typer.Typer(
 
 @dataclass
 class _SessionData:
-    chroma: ChromaClient
-    ollama: OllamaClient
     private_query: PrivateQuery
     collection_name: str
 
 
+class _Settings(BaseModel):
+    collection_name: str
+    chroma: ChromaClientConfig
+    ollama: OllamaClientConfig
+
+
 def _initialize_session(config_path: Path) -> _SessionData:
     config = load_yaml_config(str(config_path))
-    settings = get_config_value(config, "settings", dict[str, Any])
-    collection_name = get_config_value(settings, "collection_name", str)
+    settings = _Settings.model_validate(config["settings"])
+    collection_name = settings.collection_name
     logger.info("[SESSION INIT]: Loading ChromaDB client...")
-    chroma_config = get_config_value(settings, "chroma", dict[str, str])
-    chroma = ChromaClient(chroma_config)
+    chroma = ChromaClient(settings.chroma)
     logger.info("[SESSION INIT]: Loading Ollama client...")
-    ollama_config = get_config_value(settings, "ollama", dict[str, str])
-    ollama = OllamaClient(ollama_config)
+    ollama = OllamaClient(settings.ollama)
     logger.info("[SESSION INIT]: Loading Private Query...")
     private_query = PrivateQuery(chroma, ollama)
     return _SessionData(
-        chroma=chroma,
-        ollama=ollama,
         private_query=private_query,
         collection_name=collection_name,
     )
@@ -78,12 +79,6 @@ def global_options(
     if ctx.invoked_subcommand == "help" or "--help" in sys.argv or "-h" in sys.argv:
         return
 
-    resolved_config_path: Path
-    if config is not None:
-        resolved_config_path = config
-    else:
-        resolved_config_path = Path.cwd() / _DEFAULT_CONFIG_FILE
-
     logger.remove(0)
     if debug_log:
         logger.add(sys.stderr, level="DEBUG")
@@ -91,6 +86,12 @@ def global_options(
         logger.add(sys.stderr, level="INFO")
     else:
         logger.add(sys.stderr, level="WARNING")
+
+    resolved_config_path: Path
+    if config is not None:
+        resolved_config_path = resolve_resource(config)
+    else:
+        resolved_config_path = resolve_resource(_DEFAULT_CONFIG_FILE)
 
     ctx.obj = _initialize_session(resolved_config_path)
 
@@ -104,18 +105,16 @@ def load(
     ],
 ):
     """Load and embed a document or an entire directory of documents."""
-    if not path.exists():
-        typer.echo(f"Error: Path '{path}' does not exist.", err=True)
+    resolved_resource = resolve_resource(path)
+
+    if not resolved_resource.exists():
+        logger.error(f"Resource: '{path}' does not exist.")
         raise typer.Exit(code=1)
     files: list[Path] = []
-    if path.is_dir():
-        files = [
-            Path(path / f).resolve()
-            for f in os.listdir(path)
-            if os.path.isfile(path / f)
-        ]
+    if resolved_resource.is_dir():
+        files = [f for f in resolved_resource.iterdir() if f.is_file()]
     else:
-        files.append(Path(path).resolve())
+        files.append(resolved_resource.resolve())
     session_data: _SessionData = ctx.obj
     session_data.private_query.embed_documents(
         collection_name=session_data.collection_name, document_paths=files

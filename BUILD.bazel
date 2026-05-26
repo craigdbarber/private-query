@@ -8,13 +8,13 @@ exports_files([
     "tests/__init__.py",
 ])
 
-# --- Bandit ---
-alias(
-    name = "bandit",
-    actual = "//tools/lint:bandit",
-)
-
 # project targets
+
+py_library(
+    name = "retry_util",
+    srcs = ["src/retry_util.py"],
+    deps = ["@pypi//tenacity"],
+)
 
 py_library(
     name = "transformer_util",
@@ -41,9 +41,10 @@ py_library(
     srcs = ["tests/test_util.py"],
     data = ["scripts/start_ollama.sh"],
     deps = [
+        ":retry_util",
+        ":resource_util",
         "@pypi//bazel_runfiles",
         "@pypi//psutil",
-        "@pypi//tenacity",
         "@pypi//loguru",
     ],
 )
@@ -61,7 +62,12 @@ py_library(
 py_test(
     name = "test_config_util",
     srcs = ["tests/test_config_util.py"],
-    deps = [":config_util"],
+    deps = [
+        ":config_util",
+        ":chroma_util",
+        ":ollama_util",
+        "@pypi//pydantic",
+    ],
 )
 
 py_library(
@@ -69,9 +75,10 @@ py_library(
     srcs = ["src/ollama_util.py"],
     deps = [
         ":config_util",
+        ":retry_util",
         "@pypi//ollama",
         "@pypi//loguru",
-        "@pypi//tenacity",
+        "@pypi//pydantic",
     ],
 )
 
@@ -86,6 +93,21 @@ py_test(
     tags = ["exclusive"],
 )
 
+py_library(
+    name = "resource_util",
+    srcs = ["src/resource_util.py"],
+    deps = [
+        "@pypi//bazel_runfiles",
+        "@pypi//loguru",
+    ],
+)
+
+py_test(
+    name = "test_resource_util",
+    srcs = ["tests/test_resource_util.py"],
+    deps = [":resource_util"],
+)
+
 py_binary(
     name = "private_query_cli",
     srcs = ["src/main_cli.py"],
@@ -95,8 +117,10 @@ py_binary(
         ":chroma_util",
         ":config_util",
         ":ollama_util",
+        ":resource_util",
         "@pypi//typer",
         "@pypi//loguru",
+        "@pypi//pydantic",
     ],
 )
 
@@ -128,6 +152,7 @@ py_library(
         ":transformer_util",
         "@pypi//chromadb",
         "@pypi//loguru",
+        "@pypi//pydantic",
     ],
 )
 
@@ -141,6 +166,7 @@ py_test(
         ":ollama_util",
         ":private_query_lib",
         ":test_util",
+        ":resource_util",
     ],
     tags = ["exclusive"],
 )
@@ -150,13 +176,14 @@ py_library(
     srcs = ["src/chroma_util.py"],
     deps = [
         ":config_util",
+        ":retry_util",
         "@pypi//chromadb",
         "@pypi//more_itertools",
         "@pypi//sentence_transformers",
         "@pypi//torch",
         "@pypi//transformers",
         "@pypi//loguru",
-        "@pypi//tenacity",
+        "@pypi//pydantic",
     ],
 )
 

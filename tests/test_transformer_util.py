@@ -2,7 +2,7 @@
 
 import random
 import stat
-import tempfile
+from collections.abc import Callable
 from pathlib import Path
 
 import pytest
@@ -11,10 +11,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import Flowable, PageBreak, Paragraph, SimpleDocTemplate
 
 from transformer_util import (
-    extract_text_from_docx,
     extract_text_from_file,
-    extract_text_from_pdf,
-    extract_text_from_txt,
 )
 
 
@@ -29,106 +26,89 @@ def _generate_random_texts(k: int = 100, num_pages: int = 10) -> list[str]:
     return pages
 
 
-def test_extract_text_from_file():
-    """Test correctly extracts text."""
-    with tempfile.NamedTemporaryFile(mode="w+t", suffix=".txt") as tmp_txt:
-        input_page_texts = _generate_random_texts()
-        for page in input_page_texts:
-            tmp_txt.write(f"{page}\n")
-        tmp_txt.flush()
-
-        tmp_path = Path(tmp_txt.name).resolve()
-        extracted_raw = extract_text_from_file(tmp_path)
-        clean_extracted = " ".join(extracted_raw.split())
-        clean_expected = " ".join(" ".join(input_page_texts).split())
-        assert clean_extracted == clean_expected
-
-
 def test_extract_text_from_file_raises_fnf_error():
     """Test raises FileNotFoundError."""
     with pytest.raises(FileNotFoundError):
-        extract_text_from_file("non existant file")
+        extract_text_from_file("non-existent file")
 
 
-def test_extract_text_from_file_raises_perm_error():
+def test_extract_text_from_file_raises_perm_error(tmp_path: Path):
     """Test raises PermissionError."""
-    with (
-        pytest.raises(PermissionError),
-        tempfile.NamedTemporaryFile() as tmp,
-    ):
-        tmp_path = Path(tmp.name).resolve()
-        tmp_path.touch()
-        current_mode = tmp_path.stat().st_mode
+    with pytest.raises(PermissionError):
+        tmp_file = (tmp_path / "tmp_file").resolve()
+        tmp_file.touch()
+        current_mode = tmp_file.stat().st_mode
         read_bits = stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH
         new_mode = current_mode & ~read_bits
-        tmp_path.chmod(mode=new_mode)
-        extract_text_from_file(tmp_path)
+        tmp_file.chmod(mode=new_mode)
+        extract_text_from_file(tmp_file)
 
 
-def test_extract_text_from_file_raises_value_error_not_file():
+def test_extract_text_from_file_raises_value_error_not_file(tmp_path: Path):
     """Test raises ValueError for not a file."""
-    with (
-        pytest.raises(ValueError, match=r"File path is not file:.*"),
-        tempfile.TemporaryDirectory() as tmp_dir,
-    ):
-        tmp_path = Path(tmp_dir).resolve()
-        extract_text_from_file(tmp_path)
+    with pytest.raises(ValueError, match=r"File path is not file:.*"):
+        tmp_dir = (tmp_path / "tmp_dir").resolve()
+        tmp_dir.mkdir()
+        extract_text_from_file(tmp_dir)
 
 
-def test_extract_text_from_txt():
-    """Test correctly extracts text."""
-    with tempfile.NamedTemporaryFile(mode="w+t", suffix=".txt") as tmp_txt:
-        input_page_texts = _generate_random_texts()
-        for page in input_page_texts:
-            tmp_txt.write(f"{page}\n")
-        tmp_txt.flush()
-
-        tmp_path = Path(tmp_txt.name).resolve()
-        extracted_raw = extract_text_from_txt(tmp_path)
-        clean_extracted = " ".join(extracted_raw.split())
-        clean_expected = " ".join(" ".join(input_page_texts).split())
-        assert clean_extracted == clean_expected
+def test_extract_text_from_file_empty_file(tmp_path: Path):
+    """Test successfully handles empty file."""
+    tmp_file = (tmp_path / "tmp.txt").resolve()
+    tmp_file.write_text("")
+    extracted_text = extract_text_from_file(tmp_file)
+    assert extracted_text is not None
+    assert extracted_text == ""
 
 
-def test_extract_text_from_docx():
-    """Test correctly extracts text."""
-    with tempfile.NamedTemporaryFile(mode="w+b", suffix=".docx") as tmp_docx:
-        doc = Document()
-        input_page_texts = _generate_random_texts()
-        for page in input_page_texts:
-            doc.add_paragraph(page)
-        tmp_path = Path(tmp_docx.name).resolve()
-        doc.save(str(tmp_path))
-        tmp_docx.flush()
-
-        extracted_raw = extract_text_from_docx(tmp_path)
-        clean_extracted = " ".join(extracted_raw.split())
-        clean_expected = " ".join(" ".join(input_page_texts).split())
-        assert clean_extracted == clean_expected
+def _generate_txt_file(path: Path, texts: list[str]):
+    path.write_text("\n".join(page for page in texts))
 
 
-def test_extract_text_from_pdf():
-    """Test correctly extracts text."""
-    with tempfile.NamedTemporaryFile(mode="w+b", suffix=".pdf") as tmp_pdf:
-        tmp_path = Path(tmp_pdf.name)
-        input_page_texts = _generate_random_texts()
-        doc = SimpleDocTemplate(str(tmp_path))
-        styles = getSampleStyleSheet()
-        story: list[Flowable] = []
-        for i, text in enumerate(input_page_texts):
-            story.append(Paragraph(text, styles["Normal"]))
-            if i < len(input_page_texts) - 1:
-                story.append(PageBreak())
-        doc.build(story)
-        tmp_pdf.flush()
-
-        # pypdf often injects '\n' or '\x0c' between pages
-        extracted_raw = extract_text_from_pdf(tmp_path)
-        clean_extracted = " ".join(extracted_raw.split())
-        clean_expected = " ".join(" ".join(input_page_texts).split())
-
-        assert clean_expected == clean_extracted
+def _generate_docx_file(path: Path, texts: list[str]):
+    doc = Document()
+    for page in texts:
+        doc.add_paragraph(page)
+    doc.save(str(path))
 
 
-if __name__ == "__main__":
-    pytest.main()
+def _generate_pdf_file(path: Path, texts: list[str]):
+    doc = SimpleDocTemplate(str(path))
+    styles = getSampleStyleSheet()
+    story: list[Flowable] = []
+    for i, text in enumerate(texts):
+        story.append(Paragraph(text, styles["Normal"]))
+        if i < len(texts) - 1:
+            story.append(PageBreak())
+    doc.build(story)
+
+
+@pytest.mark.parametrize(
+    "extension, generate_func",
+    [
+        (".txt", _generate_txt_file),
+        (".docx", _generate_docx_file),
+        (".pdf", _generate_pdf_file),
+    ],
+)
+def test_extract_text_from_file_all_formats(
+    tmp_path: Path, extension: str, generate_func: Callable[[Path, list[str]], None]
+):
+    """Test extract_text_from_file correctly handles all supported formats."""
+    # test populated file
+    texts = _generate_random_texts()
+    tmp_file = (tmp_path / f"tmp_{extension}").resolve()
+    generate_func(tmp_file, texts)
+    _clean_and_test_expected_text(extract_text_from_file(tmp_file), texts)
+
+    # test empty file
+    tmp_empty_file = (tmp_path / f"tmp_empty{extension}").resolve()
+    empty_texts: list[str] = []
+    generate_func(tmp_empty_file, empty_texts)
+    _clean_and_test_expected_text(extract_text_from_file(tmp_empty_file), empty_texts)
+
+
+def _clean_and_test_expected_text(extracted_raw: str, texts: list[str]):
+    clean_extracted = " ".join(extracted_raw.split())
+    clean_expected = " ".join(" ".join(texts).split())
+    assert clean_expected == clean_extracted

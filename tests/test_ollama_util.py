@@ -7,19 +7,19 @@ import pytest
 from test_util import start_local_ollama
 
 from config_util import load_yaml_config
-from ollama_util import OllamaClient
+from ollama_util import OllamaClient, OllamaClientConfig
 
 
 @dataclass
-class _SessionData:
+class _OllamaSessionData:
     client: OllamaClient
     model: str
 
 
-@pytest.fixture(scope="session", name="session_data")
+@pytest.fixture(scope="session", name="ollama_session_data")
 def suite_setup_teardown(
     tmp_path_factory: pytest.TempPathFactory,
-) -> Generator[_SessionData, None, None]:
+) -> Generator[_OllamaSessionData, None, None]:
     """Set up ollama local service for testing."""
     # suite setup
     host = "localhost:11434"
@@ -34,23 +34,24 @@ def suite_setup_teardown(
 host: "{host}"
 model: "{model}"
                         """)
-    config = load_yaml_config(str(tmp_config.absolute()))
+    yaml_config = load_yaml_config(str(tmp_config.absolute()))
+    config = OllamaClientConfig.model_validate(yaml_config)
     client = OllamaClient(config)
 
-    yield _SessionData(client=client, model=model)
+    yield _OllamaSessionData(client=client, model=model)
 
 
-def test_ollama_client(session_data: _SessionData):
+def test_ollama_client(ollama_session_data: _OllamaSessionData):
     """Test the OllamaClient is setup properly."""
-    client = session_data.client
+    client = ollama_session_data.client
     assert client
-    model = session_data.model
+    model = ollama_session_data.model
     assert model
     assert client.contains_model(model)
 
 
-def test_execute_prompt(session_data: _SessionData):
+def test_execute_prompt(ollama_session_data: _OllamaSessionData):
     """Test execute_prompt."""
-    client = session_data.client
+    client = ollama_session_data.client
     response = client.execute_prompt("Hello how are you?")
     assert response

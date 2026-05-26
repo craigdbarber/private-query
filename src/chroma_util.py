@@ -6,44 +6,48 @@ os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
 
 import logging
 import sys
-from collections.abc import Callable
-from enum import StrEnum
-from typing import Any
+from typing import Any, Literal
 
 import torch
-from chromadb import Collection, PersistentClient
+from chromadb import Collection, HttpClient, PersistentClient
 from chromadb.api import ClientAPI
+from chromadb.config import Settings
 from chromadb.utils import embedding_functions
 from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
 from loguru import logger
 from more_itertools import batched
-from tenacity import retry, stop_after_attempt, wait_random_exponential
-from transformers import AutoTokenizer
+from pydantic import BaseModel, Field, HttpUrl
+from transformers import (
+    AutoTokenizer,
+    PreTrainedTokenizerBase,
+)
 
-from config_util import get_config_value
-
-_CHROMA_MAX_BATCH_SIZE = 166
-
-
-class _ChromaType(StrEnum):
-    LOCAL = "local"
-    REMOTE = "remote"
+from retry_util import random_exponential_retry
 
 
-def _chroma_type_from_str(value: str) -> _ChromaType:
-    """Parse a configuration chroma type from the specified string.
-    Raises a ValueError if undefined.
+class LocalDbConfig(BaseModel):
+    """Configuration model for a local database."""
 
-    Args:
-        value: The value type to be parsed.
-    Returns: The parsed configuration chroma type.
+    type: Literal["local"] = "local"
+    persist_directory: str
 
-    """
-    if value == _ChromaType.LOCAL:
-        return _ChromaType.LOCAL
-    if value == _ChromaType.REMOTE:
-        return _ChromaType.REMOTE
-    raise ValueError(f"Failed to parse chroma type: ${value}")
+
+class RemoteDbConfig(BaseModel):
+    """Configuration model for a remote database."""
+
+    type: Literal["remote"] = "remote"
+    host: HttpUrl
+    database_name: str
+    auth_token: str | None
+
+
+class ChromaClientConfig(BaseModel):
+    """Configuration model for ChromaClient."""
+
+    embedding_model: str
+    embedding_model_revision: str
+    model_cache_directory: str
+    database: LocalDbConfig | RemoteDbConfig = Field(discriminator="type")
 
 
 class ChromaClient:
@@ -51,11 +55,11 @@ class ChromaClient:
     function.
     """
 
-    def __init__(self, config: dict[str, str]):
+    def __init__(self, config: ChromaClientConfig):
         """Intialize new client.
 
         Args:
-            config: A dictionary containing the configuration values to parse.
+            config: The configuration this client will use.
 
         Raises:
             ConnectionError: If a client connection could not be established.
@@ -64,52 +68,85 @@ class ChromaClient:
         # instance variables
         self._client: ClientAPI
         self._embedding_func: SentenceTransformerEmbeddingFunction
-        self._embedding_model_revision: str
         self._model_cache_dir: str
+        self._tokenizer: PreTrainedTokenizerBase
 
-        @retry(
-            wait=wait_random_exponential(max=10),
-            stop=stop_after_attempt(3),
-        )
-        def attempt_client_connect(connect_func: Callable[..., ClientAPI]) -> ClientAPI:
-            return connect_func()
-
-        # load the config
-        chroma_type = get_config_value(config, "type", str)
-        db_type = _chroma_type_from_str(chroma_type)
-        if db_type == _ChromaType.LOCAL:
-            persist_dir = get_config_value(config, "persist_directory", str)
-            logger.info(
-                f"Setting up local chroma client: persist_directory: {persist_dir}"
-            )
-            try:
-                self._client = attempt_client_connect(
-                    lambda: PersistentClient(persist_dir)
+        # load the database client connection
+        match config.database:
+            case LocalDbConfig(persist_directory=persist_dir):
+                logger.info(
+                    f"Setting up local chroma client: persist_directory: {persist_dir}"
                 )
-            except Exception as e:
-                logger.error("Failed to create persistent chroma client.")
-                raise ConnectionError(
-                    "Failed to create persistent chroma client."
-                ) from e
-        else:
-            raise NotImplementedError(f"Chroma type not supported: {chroma_type}")
-            # TODO: impemented support for remote type
-
-        embedding_model = get_config_value(config, "embedding_model", str)
-        model_cache_dir = get_config_value(config, "model_cache_directory", str)
-        self._model_cache_dir = model_cache_dir
-        embedding_model_revision = get_config_value(
-            config, "embedding_model_revision", str
-        )
-        self._embedding_model_revision = embedding_model_revision
+                self._client = PersistentClient(persist_dir)
+            case RemoteDbConfig(
+                host=hostname, database_name=database, auth_token=token
+            ):
+                logger.info(
+                    f"Setting up remote chroma client: host: {hostname} database_name: \
+                        {database}"
+                )
+                try:
+                    kwargs: dict[str, Any] = {}
+                    kwargs["ssl"] = hostname.scheme == "https"
+                    if token is not None:
+                        settings = Settings(
+                            chroma_client_auth_provider="chromadb.auth.token_authn.TokenAuthClientProvider",
+                            chroma_client_auth_credentials=token,
+                        )
+                        kwargs["settings"] = settings
+                    self._client = random_exponential_retry(
+                        lambda: HttpClient(
+                            host=str(hostname), database=database, **kwargs
+                        )
+                    )
+                except Exception as e:
+                    err_msg = (
+                        f"Failed to create remote chroma client: host: {hostname} \
+                        database: {database}"
+                    )
+                    logger.error(err_msg)
+                    raise ConnectionError(err_msg) from e
 
         # reduce the logging noise from huggingface_hub
         logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
 
-        logger.info(f"Retrieving embedding model: {embedding_model}")
-        self._embedding_func = _get_embedding_function(
-            embedding_model, self._model_cache_dir, self._embedding_model_revision
-        )
+        # load the embedding model
+        self._model_cache_dir = config.model_cache_directory
+        embedding_model = config.embedding_model
+        embedding_model_revision = config.embedding_model_revision
+        try:
+            logger.info(f"Retrieving embedding model: {embedding_model}")
+            self._embedding_func = random_exponential_retry(
+                lambda: _get_embedding_function(
+                    embedding_model,
+                    self._model_cache_dir,
+                    embedding_model_revision,
+                )
+            )
+        except Exception as e:
+            err_msg = f"Failed to retrieve embedding model: {embedding_model}"
+            logger.error(err_msg)
+            raise ConnectionError(err_msg) from e
+
+        # load the tokenizer
+        model_path = f"sentence-transformers/{self._embedding_func.model_name}"
+        try:
+            tokenizer = random_exponential_retry(
+                lambda: AutoTokenizer.from_pretrained(
+                    pretrained_model_name_or_path=model_path,
+                    revision=embedding_model_revision,
+                    token=False,
+                    cache_dir=self._model_cache_dir,
+                )
+            )
+            if not isinstance(tokenizer, PreTrainedTokenizerBase):
+                raise ValueError(f"Unexpected tokenizer type: {type(tokenizer)}")
+            self._tokenizer = tokenizer
+
+        except Exception as e:
+            err_msg = f"Failed to retrieve toknizer for model: {model_path}"
+            logger.error(err_msg)
+            raise ConnectionError(err_msg) from e
 
     def get_or_create_collection(
         self, name: str, distance_func: str | None = None
@@ -128,13 +165,17 @@ class ChromaClient:
         return self._client.get_or_create_collection(
             name=name,
             embedding_function=self._embedding_func,  # type: ignore
-            metadata=metadata if metadata else None,
+            metadata=metadata or None,
         )
 
     def is_alive(self) -> bool:
         """Return whether the client connection is alive."""
-        time = self._client.heartbeat()
-        return time is not None
+        try:
+            self._client.heartbeat()
+            return True
+        except Exception:  # pylint: disable=broad-exception-caught
+            logger.info("Client connection is not alive.")
+            return False
 
     def batched_upsert(
         self,
@@ -157,7 +198,7 @@ class ChromaClient:
         document_indices = list(range(len(documents)))
         for batch in batched(document_indices, self._client.get_max_batch_size()):
             start_idx = batch[0]
-            end_idx = batch[-1]
+            end_idx = batch[-1] + 1
             collection.upsert(
                 ids=ids[start_idx:end_idx],
                 documents=documents[start_idx:end_idx],
@@ -181,24 +222,16 @@ class ChromaClient:
         retrieved.
 
         """
-        model_path = f"sentence-transformers/{self._embedding_func.model_name}"
-        tokenizer = AutoTokenizer.from_pretrained(
-            pretrained_model_name_or_path=model_path,
-            revision=self._embedding_model_revision,
-            token=False,
-            cache_dir=self._model_cache_dir,
+        self._tokenizer.model_max_length = sys.maxsize
+        tokens = self._tokenizer.encode(
+            text, add_special_tokens=False, truncation=False
         )
-        if tokenizer is None:
-            logger.error(f"Failed to load tokenizer, model_path: {model_path}")
-            raise RuntimeError(f"Failed to load tokenizer, model_path: {model_path}")
-        tokenizer.model_max_length = sys.maxsize
-        tokens = tokenizer.encode(text, add_special_tokens=False, truncation=False)
         chunks: list[str] = []
         start_index = 0
         while start_index < len(tokens):
             end_index = start_index + chunk_size
             chunk_tokens = tokens[start_index:end_index]
-            tokens_text = tokenizer.decode(
+            tokens_text = self._tokenizer.decode(
                 chunk_tokens, clean_up_tokenization_spaces=True
             )
             if tokens_text is not None and tokens_text:

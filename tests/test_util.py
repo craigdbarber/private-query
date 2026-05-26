@@ -1,60 +1,14 @@
 """A collection of utility functions for testing."""
 
-import os
 import shlex
 import subprocess  # nosec
 from pathlib import Path
 
 import psutil
 from loguru import logger
-from runfiles import runfiles
-from tenacity import retry, stop_after_attempt, wait_random_exponential
 
-
-def load_test_data_dir(data_dir: str | None = None) -> Path:
-    """Load a target directory supporting execution from both bazel and pytest.
-
-    Args:
-        data_dir: The relative path of the directory to be loaded (e.g., "tests/data").
-                  If None or empty, returns the project root directory.
-    Returns: The requested data dir, or the project root directory.
-
-    Raises:
-        FileNotFoundError: If the specified relative path does not exist.
-        RuntimeError: If bazel runfiles object failed to be created.
-
-    """
-    logger.info("Loading test data dir: {data_dir}")
-    # check if running under bazel
-    if "RUNFILES_DIR" in os.environ or "RUNFILES_MANIFEST_FILE" in os.environ:
-        logger.info("Attempting to load resource from bazel env.")
-        rf = runfiles.Create()
-        if rf is None:
-            raise RuntimeError("Failed to create bazel runfiles obj.")
-        current_repo = rf.CurrentRepository()
-        repo_root = current_repo if current_repo else "_main"
-        if data_dir:
-            runfiles_path = rf.Rlocation(f"{repo_root}/{data_dir}")
-            if runfiles_path and os.path.exists(runfiles_path):
-                return Path(runfiles_path).resolve()
-        else:
-            root_path = rf.Rlocation(repo_root)
-            if root_path and os.path.exists(root_path):
-                return Path(root_path).resolve()
-
-    # fallback to standard pytest exeuction from the project root
-    logger.info("Attempting to load resource from python env.")
-    project_root = Path(__file__).parent.parent
-    if data_dir:
-        data_dir_path = project_root / data_dir
-        if data_dir_path.exists() and data_dir_path.is_dir():
-            return data_dir_path.resolve()
-    else:
-        return project_root.resolve()
-
-    # if the specified data directory could not be found, raise an error
-    logger.error(f"Failed to load test data dir: {data_dir}")
-    raise FileNotFoundError(f"Failed to load test directory: {data_dir}")
+from resource_util import resolve_directory
+from retry_util import random_exponential_retry
 
 
 def start_local_ollama(host: str, home_dir: Path):
@@ -68,7 +22,7 @@ def start_local_ollama(host: str, home_dir: Path):
     if is_process_running("ollama"):
         return
 
-    scripts_dir_path = load_test_data_dir("scripts")
+    scripts_dir_path = resolve_directory("scripts")
     start_script_path = (scripts_dir_path / "start_ollama.sh").resolve()
     logger.info(
         f"Starting ollama service, host: {host} start_script_path: {start_script_path}"
@@ -84,21 +38,18 @@ def start_local_ollama(host: str, home_dir: Path):
                 shlex.quote(str(home_dir)),
             ],
             check=True,
+            capture_output=True,
         )
-    except Exception as e:
-        logger.error(
-            f"Failed to start ollama service: host: {host} start_script_path:\
-                  {start_script_path}"
-        )
-        raise RuntimeError("Failed to start ollama service") from e
+    except subprocess.CalledProcessError as cpe:
+        logger.error(f"Failed to start ollama service: error: {cpe.stderr.decode()}")
+        raise cpe
 
-    @retry(wait=wait_random_exponential(max=10), stop=stop_after_attempt(3))
+    # verify ollama is running before returning
     def wait_ollama_started():
         if not is_process_running("ollama"):
             raise TimeoutError("Timed out waiting for ollama service to start.")
 
-    # verify ollama is running before returning
-    wait_ollama_started()
+    random_exponential_retry(wait_ollama_started)
 
 
 def is_process_running(name: str) -> bool:
@@ -112,25 +63,3 @@ def is_process_running(name: str) -> bool:
     return any(
         name in proc.info["name"].lower() for proc in psutil.process_iter(["name"])
     )
-
-
-def stop_process(name: str) -> bool:
-    """Attempt to stop the process with the specified name.
-
-    Args:
-        name: The name of the process to be stopped.
-    Returns: Whether the process was successfully stopped.
-
-    """
-    stopped = False
-    for proc in psutil.process_iter(["name", "pid"]):
-        try:
-            if name in proc.info["name"].lower():
-                proc.kill()
-                stopped = True
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            # handles cases where process closes natually while loop is running or
-            # requires admin rights
-            continue
-
-    return stopped
