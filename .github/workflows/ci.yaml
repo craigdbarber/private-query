@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Bazel
+        uses: bazel-contrib/setup-bazel@0.9.1
+        with:
+          # Use the version specified in .bazelversion
+          bazelisk-cache: true
+          disk-cache: true
+          repository-cache: true
+
+      - name: Build and Run Audits (Linting/Security/Docs)
+        run: bazel build --config=lint //...
+
+      - name: Check Formatting
+        run: bazel run //tools/format -- --check
+
+      - name: Run Unit Tests
+        run: bazel test //...
+

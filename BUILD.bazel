@@ -82,10 +82,11 @@ py_library(
     ],
 )
 
+# integration test for ollama
 py_test(
     name = "test_ollama_util",
     srcs = ["tests/test_ollama_util.py"],
-    tags = ["exclusive"],
+    tags = ["exclusive", "manual"],
     deps = [
         ":config_util",
         ":ollama_util",
@@ -156,11 +157,12 @@ py_library(
     ],
 )
 
+# integration test for private_query
 py_test(
     name = "test_private_query",
     srcs = ["tests/test_private_query.py"],
     data = glob(["tests/data/*.txt"]),
-    tags = ["exclusive"],
+    tags = ["exclusive", "manual"],
     deps = [
         ":chroma_util",
         ":config_util",
