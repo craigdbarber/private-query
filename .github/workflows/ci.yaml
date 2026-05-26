@@ -28,5 +28,5 @@ jobs:
         run: bazel run //tools/format -- --check
 
       - name: Run Unit Tests
-        run: bazel test //...
+        run: bazel test --test_output=streamed //...
 
