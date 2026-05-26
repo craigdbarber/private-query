@@ -1099,6 +1099,7 @@ dev = [
     { name = "maturin", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "private-query", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "puccinialin", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
+    { name = "pyproject-fmt", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "pytest", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "ruff", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
     { name = "setuptools", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
@@ -1136,6 +1137,7 @@ dev = [
     { name = "maturin", specifier = ">=1.13.3" },
     { name = "private-query" },
     { name = "puccinialin", specifier = ">=0.1.12" },
+    { name = "pyproject-fmt", specifier = ">=2.21.2" },
     { name = "pytest", specifier = ">=9.0.3" },
     { name = "ruff", specifier = ">=0.15.13" },
     { name = "setuptools", specifier = ">=82.0.1" },
@@ -1306,6 +1308,24 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/f8/78/cbaebba88e05e2dcda13ca203131b38d3640219f20ebb49676d26714861b/pypika-0.51.1.tar.gz", hash = "sha256:c30c7c1048fbf056fd3920c5a2b88b0c29dd190a9b2bee971fd17e4abe4d0ebe", size = 80919, upload-time = "2026-02-04T11:27:48.304Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/57/83/c77dfeed04022e8930b08eedca2b6e5efed256ab3321396fde90066efb65/pypika-0.51.1-py2.py3-none-any.whl", hash = "sha256:77985b4d7ce71b9905255bf12468cf598349e98837c037541cfc240e528aec46", size = 60585, upload-time = "2026-02-04T11:27:46.251Z" },
+]
+
+[[package]]
+name = "pyproject-fmt"
+version = "2.21.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "toml-fmt-common", marker = "sys_platform == 'darwin' or sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/03/30/c2e3505604c097a591bddd02fafe674d3d7049c9a1a8fdbf109e2bd583ef/pyproject_fmt-2.21.2.tar.gz", hash = "sha256:7fcfdab7eb7da356998ff5ecdff8ebf85c1080523e28c085a4643950d962107f", size = 155067, upload-time = "2026-05-05T00:55:17.756Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6e/a6/a237b1ca70d06a48e75dcaca385cdeae82de73cecade3c8274566837c3dc/pyproject_fmt-2.21.2-cp310-abi3-macosx_10_12_x86_64.whl", hash = "sha256:28e222e4267d338b737bdd454de5d6ac2291a93c839665ba880174860a94dedd", size = 5080595, upload-time = "2026-05-05T00:54:27.551Z" },
+    { url = "https://files.pythonhosted.org/packages/be/ab/84192abff5a4e8545f7087f9df9e2fceba8c5820de23f77951af0f59ecf2/pyproject_fmt-2.21.2-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:f2632a23bff5c2b607f466320436352e8c29cd1dfad4b3a452719ba72475d5c8", size = 4880644, upload-time = "2026-05-05T00:54:29.683Z" },
+    { url = "https://files.pythonhosted.org/packages/47/7c/ab5f5e361a037931b786f72c01c0288b4a5161d3d95a8a171f95924a8dc6/pyproject_fmt-2.21.2-cp310-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:37a6fa1462aa1413dae14f2a204e232452ea509af72641091dd10ecc6fd58f5e", size = 5043706, upload-time = "2026-05-05T00:54:31.805Z" },
+    { url = "https://files.pythonhosted.org/packages/8d/76/e6d98b567164342b5c0e571053becabcb4ae2b067e0b86d9647accb76461/pyproject_fmt-2.21.2-cp310-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:749e9a6715b92d660a38efe13077910ffc75d688096af953d7bee1c4490157df", size = 5397345, upload-time = "2026-05-05T00:54:33.901Z" },
+    { url = "https://files.pythonhosted.org/packages/df/9c/b26d84d4f25414450f8e74604abada0f2687312f34305d2a56a75314de15/pyproject_fmt-2.21.2-cp310-abi3-manylinux_2_31_riscv64.whl", hash = "sha256:bbaa5c5a1650a6fb181d43f8e625cf225c991b0457feaa48735df1be29c368c2", size = 5084825, upload-time = "2026-05-05T00:54:35.99Z" },
+    { url = "https://files.pythonhosted.org/packages/af/a7/098b5ff64f1497025340bddd68a103380a4b579a77e5fe38d97f161dc43e/pyproject_fmt-2.21.2-cp310-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:93fe997b4531542b4f76b187600e5a1ad0f8856be9a81054bddb8e11309f370f", size = 5595994, upload-time = "2026-05-05T00:54:37.678Z" },
+    { url = "https://files.pythonhosted.org/packages/36/20/ba56926c5ee296bdc055e403cf5419e2b0b2d4a385609e95558841a62691/pyproject_fmt-2.21.2-cp310-abi3-win_amd64.whl", hash = "sha256:1ef6e5b86b85673f1fc4fd1cb3ccd833ef3293b3b19ed04ae4668604615feef5", size = 5309188, upload-time = "2026-05-05T00:54:39.764Z" },
 ]
 
 [[package]]
@@ -1718,6 +1738,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/be/ba/1f744cdc819428fc6b5084ec34d9b30660f6f9daaf70eead706e3203ec3c/toml-0.10.2.tar.gz", hash = "sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f", size = 22253, upload-time = "2020-11-01T01:40:22.204Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/44/6f/7120676b6d73228c96e17f1f794d8ab046fc910d781c8d151120c3f1569e/toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b", size = 16588, upload-time = "2020-11-01T01:40:20.672Z" },
+]
+
+[[package]]
+name = "toml-fmt-common"
+version = "1.3.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b0/f3/1a54191399599a229d04868083c30234c62e569cfaaf367f6c792ac53e2d/toml_fmt_common-1.3.2.tar.gz", hash = "sha256:d0da45f0244e8d410787fa8ddf5a5594016abb2a7b97f400ce20ec8b0a6a4804", size = 7583, upload-time = "2026-03-20T17:32:11.335Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/55/27/403387a0b8ad8e5d57bec82ed0e5528432859ea8e1475916c8c8ac45197c/toml_fmt_common-1.3.2-py3-none-any.whl", hash = "sha256:f3329fbdd962f629d1777071a7f37813f6cf17b10a33830a5393996fc2064bef", size = 5557, upload-time = "2026-03-20T17:32:10.263Z" },
 ]
 
 [[package]]
