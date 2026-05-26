@@ -7,60 +7,72 @@
 * [Usage](#usage)
 * [Configuration](#configuration)
 * [Testing and Linting](#testing-and-linting)
+* [Design & Architecture](design_architecture.md)
 
 ## Project Overview
 
-`private-query` is an AI solution offering [Retrieval Augmented Generation (RAG)](https://en.wikipedia.org/wiki/Retrieval-augmented_generation) [Large Language Model (LLM)](https://en.wikipedia.org/wiki/Large_language_model) querying functionality isolated in a private environment. It caters to users and organizations who cannot expose their data to public/commercially offered LLM solutions due to: privacy, policy, trade secrets, copyright, etc. concerns. It provides a set of commands for embedding a local collection of documents into a privately hosted ChromaDB database, and then using that embedded data as context for RAG queries against a privately hosted open source LLM running within Ollama. Configuration provides options for targeting both ChromaDB and Ollama instances running on the user's local machine, or instances running within a private network. `private-query` has been programmed to only provide answers exclusively sourced from information embedded within ChromaDB in order to prevent hallucinations. Additionally, each answer is accompanied by a list of references showing which documents information was sourced from.
+`private-query` is a secure, locally-hosted Retrieval-Augmented Generation (RAG) tool designed for querying private datasets. It is ideal for users and organizations with strict data privacy, policy, or intellectual property concerns who cannot use public LLM services.
+
+**Key Features:**
+* **100% Private:** Operates entirely within your local environment or private network, keeping your data secure.
+* **Local Ingestion & Search:** Embeds local documents into a self-hosted ChromaDB database for fast context retrieval.
+* **Open-Source LLMs:** Uses local models running on Ollama to execute queries against your embedded data.
+* **Hallucination Prevention:** Strictly scoped to provide answers sourced exclusively from your provided documents.
+* **Source Citations:** Every answer includes clear references to the specific documents used to generate it.
 
 ## Dependencies
 - [Ollama](https://ollama.com): Used for hosting a privately running open source LLM.
 - [ChromaDB](https://www.trychroma.com/products/chromadb): Used for privately storing and querying data.
 - [Bazel](https://bazel.build/docs): Used for building and testing.
 - [uv](https://docs.astral.sh/uv/): Used for package and Python environment management.
-- [Python](https://www.python.org): The software development language used.
+- [Python](https://www.python.org): Version `>= 3.12` is required (for `torch` compatibility).
 
 ## Setup
 
 This section provides instructions for downloading, installing, and configuring `private-query`. Use of [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) is highly encouraged for Windows users.
 
-* Checkout the repo:
+### Installation
+
+1. **Clone the repository:**
 ```bash
-mkdir private-query
+git clone https://github.com/craigdbarber/private-query.git
 cd private-query
-git clone https://github.com/craigdbarber/private-query.git .
 ```
-* Initialize the local `uv` environment:
+
+2. **Initialize the local `uv` environment:**
 ```bash
 uv venv && uv sync && source .venv/bin/activate
 ```
 
-* To install `private-query` into `~/.local/bin/` using `uv`:
+3. **Configure the application:**
+```bash
+cp config.yaml.example config.yaml
+```
+
+### Execution Options
+
+* **As a CLI Tool (via uv):**
 ```bash
 uv tool install .
 ```
 
-* To build a stand-alone [PEX](https://github.com/benley/bazel_rules_pex) binary using `bazel`:
+* **Via Bazel (PEX binary):**
 ```bash
 bazel build //:private_query
 cp bazel-bin/private-query .
 ```
 
-* Setup the configuration file, see [Configuration](#configuration):
-```bash
-cp config.yaml.example config.yaml
-```
-
-* Running `private-query` with `uv`:
+* **Development (direct uv):**
 ```bash
 uv run private-query [args]
 ```
 
-* Running `private-query` with `bazel`:
+* **Development (direct bazel):**
 ```bash
 bazel run //:private_query_cli -- [args]
 ```
 
-* Ensure Ollama is running either locally or on a hosted environment within your private network, see:  [Ollama Quickstart](https://docs.ollama.com/quickstart).
+* **Ollama Service:** Ensure Ollama is running either locally or on a hosted environment within your private network. See the [Ollama Quickstart](https://docs.ollama.com/quickstart) for more details.
 
 
 ## Usage
@@ -72,12 +84,12 @@ This section provides usage information for the `private-query` tool.
 private-query help
 ```
 
-* Loading documents into the ChromaDB:
+* Loading documents into ChromaDB:
 ```bash
 # loading an entire directory
 private-query load [path/dir]
 
-# loading an invidivual file
+# loading an individual file
 private-query load [path/file]
 ```
 
@@ -89,34 +101,47 @@ private-query query "your query"
 
 ## Configuration
 
-This section contains information for modifying the project's configuration file to suit the user's needs, see: [Example Configuration](config.yaml.example).
+This section contains information for modifying the project's configuration file to suit your needs. See [config.yaml.example](config.yaml.example) for a complete template.
 
-* `collection_name`: This is the unique name for the ChromaDB collection documents will be embedded into and queried against. Providing this option allows for users to configure isolated collections of embedded data.
-* `chroma`: Configuration settings for ChromaDB.
-    * `embedding_model`: The open source embedding model used to transform and embed user documents. Pulled from [Hugging Face](https://huggingface.co).
-    * `embedding_model_revision`: The revision of the embedding model to be utilized.
-    * `model_cache_directory`: The directory utilized to cache downloaded models.
-    * `database`: The configuration section for the database to be utilized.
-        * `type`: Either `local` or `remote` 
-        * `persist_directory`: For `local` type, the local directory the database will use to save data.
-        * `host`: For `remote` type, the host URL of the ChromaDB server to be utilized.
-        * `database_name`: For `remote` type, the name of the database to be utilized.
-        * `auth_token`: For `remote` type (Optional), the token to be used for authenticating with the ChromaDB server.
-* `ollama`: Configuration settings for Ollama.
-    * `host`: The host URL of the Ollama service to be utilized, `"localhost:11434"` for local.
-    * `model`: The open source LLM to be used for querying. Pulled from [Hugging Face](https://huggingface.co)
-    * `api_key`: (Optional) used for an authorization against Ollama.
+* `collection_name`: The unique name for the ChromaDB collection. This allows for isolated datasets.
+* `chroma`: Configuration for the ChromaDB vector database.
+    * `embedding_model`: The open-source embedding model used (via [Hugging Face](https://huggingface.co)).
+    * `embedding_model_revision`: The specific revision of the model to be utilized.
+    * `model_cache_directory`: The local directory used to cache downloaded models.
+    * `database`: The database backend configuration.
+        * `type`: Either `local` or `remote`.
+        * `persist_directory`: (For `local` type) The directory where the database saves data.
+        * `host`: (For `remote` type) The host URL of the ChromaDB server.
+        * `database_name`: (For `remote` type) The name of the database.
+        * `auth_token`: (For `remote` type, Optional) The authentication token for the server.
+* `ollama`: Configuration for the Ollama LLM service.
+    * `host`: The host URL of the Ollama service (e.g., `localhost:11434`).
+    * `model`: The open-source LLM to be used for querying (via [Hugging Face](https://huggingface.co)).
+    * `api_key`: (Optional) The API key for authorization against the Ollama service.
 
 ## Testing and Linting
 
 This section describes how to run tests and linting for this project.
 
-* Executing Tests:
+* **Unit Tests**:
 ```bash
 bazel test //...
+```
+* **Integration Tests** (Requires local Ollama server):
+```bash
+# Queries and runs all tests tagged with 'integration'
+bazel test $(bazel query "attr(tags, 'integration', //...)")
 ```
 
 * Executing linters:
 ```bash
 bazel build --config=lint //...
 ```
+
+* Executing formatters:
+```bash
+bazel run //tools/format
+```
+## Design & Architecture
+
+For a detailed overview of the system design, architectural principles, and component relationships, please refer to the [Design & Architecture](design_architecture.md) document.
