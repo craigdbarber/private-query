@@ -44,7 +44,7 @@ cd private-query
 uv venv && uv sync && source .venv/bin/activate
 ```
 
-3. **Configure the application:**
+3. **Configure the application, ([Configuration](#configuration)):**
 ```bash
 cp config.yaml.example config.yaml
 ```
@@ -54,12 +54,14 @@ cp config.yaml.example config.yaml
 * **As a CLI Tool (via uv):**
 ```bash
 uv tool install .
+private-query [args]
 ```
 
 * **Via Bazel (PEX binary):**
 ```bash
 bazel build //:private_query
 cp bazel-bin/private-query .
+./private-query [args]
 ```
 
 * **Development (direct uv):**
