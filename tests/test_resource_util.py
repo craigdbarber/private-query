@@ -36,7 +36,7 @@ def test_resolve_directory_resolves_working_dir():
     assert working_dir.is_dir()
 
 
-def test_resolve_directory_bazel_env(_mock_bazel_repo_working_dir: str):
+def test_resolve_directory_bazel_env(_mock_bazel_repo_working_dir: Path):
     """Test successfully resolves working dir for bazel env."""
     working_dir = resolve_directory()
     assert working_dir is not None
