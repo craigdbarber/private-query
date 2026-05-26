@@ -57,7 +57,7 @@ def _mock_bazel_repo_working_dir(
     repo_working_dir = runfiles_dir
     repo_working_dir.mkdir(parents=True, exist_ok=True)
 
-    # tell runfiles lib where to find the mapping layout
+    # tell runfiles lib where to find manifest and runfiles dir
     manifest_file = tmp_path / "MANIFEST_FILE"
     manifest_file.touch()
     monkeypatch.setenv("RUNFILES_MANIFEST_FILE", str(manifest_file))
@@ -67,7 +67,7 @@ def _mock_bazel_repo_working_dir(
     monkeypatch.setenv("BAZEL_REPO_MAPPING_CHUNKS", "1")
     monkeypatch.setenv("REPOSITORY_MAPPING_FILE", str(repo_mapping_file))
 
-    # mock the execution call stack so bazel tracks the frame of origin
-    # forces CurrentRepository() to align with our fake caller location
+    # mock the execution call stack so bazel tracks the frame of origin,
+    # forcing CurrentRepository() to align with our fake caller location
     monkeypatch.setattr(sys, "argv", [f"{repo_working_dir}/bin/main_cli.py"])
     return repo_working_dir
