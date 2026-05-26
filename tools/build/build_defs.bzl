@@ -39,5 +39,6 @@ def py_test(name, deps = None, imports = None, pytest_main = True, **kwargs):
         deps = deps + ["@pypi//pytest"],
         imports = imports + ["."],
         pytest_main = pytest_main,
+        package_collisions = "ignore",  # compatibility with uv and linux sandbox engine
         **kwargs
     )

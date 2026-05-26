@@ -10,6 +10,8 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    env:
+      UV_LINK_MODE: copy # fixes namespace collisions to to symlinks in bazel sandbox
     steps:
       - name: Free Disk Space (Ubuntu)
         run: |
@@ -35,29 +37,26 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Install uv and Python
-        uses: astral-sh/setup-uv@5
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b
         with:
           python-version: "3.12"
           enable-cache: true
-
-      - name: Set up Bazel
-        uses: bazel-contrib/setup-bazel@0.9.1
-        with:
-          # Use the version specified in .bazelversion
-          bazelisk-cache: true
-          disk-cache: true
-          repository-cache: true
+          ignore-nothing-to-cache: true
+      
+      - name: Checking formatting
+        run: bazel run //tools/format:format.check
 
       - name: Build and Run Audits (Linting/Security/Docs)
         run: |
           bazel build --config=lint //... \
             --experimental_repository_cache_hardlinks \
             --discard_analysis_cache \
-            --nolegacy_important_outputs
+            --nolegacy_important_outputs \
+            
 
       - name: Run Unit Tests
         run: |
-          bazel test --test_output=streamed //...
+          bazel test --test_output=streamed //... \
             --experimental_repository_cache_hardlinks \
             --discard_analysis_cache \
             --nolegacy_important_outputs
