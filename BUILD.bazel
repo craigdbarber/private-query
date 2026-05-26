@@ -20,9 +20,9 @@ py_library(
     name = "transformer_util",
     srcs = ["src/transformer_util.py"],
     deps = [
+        "@pypi//loguru",
         "@pypi//pypdf",
         "@pypi//python_docx",
-        "@pypi//loguru",
     ],
 )
 
@@ -41,11 +41,11 @@ py_library(
     srcs = ["tests/test_util.py"],
     data = ["scripts/start_ollama.sh"],
     deps = [
-        ":retry_util",
         ":resource_util",
+        ":retry_util",
         "@pypi//bazel_runfiles",
-        "@pypi//psutil",
         "@pypi//loguru",
+        "@pypi//psutil",
     ],
 )
 
@@ -54,17 +54,17 @@ py_library(
     srcs = ["src/config_util.py"],
     deps = [
         ":transformer_util",
-        "@pypi//pyyaml",
         "@pypi//loguru",
-        ],
+        "@pypi//pyyaml",
+    ],
 )
 
 py_test(
     name = "test_config_util",
     srcs = ["tests/test_config_util.py"],
     deps = [
-        ":config_util",
         ":chroma_util",
+        ":config_util",
         ":ollama_util",
         "@pypi//pydantic",
     ],
@@ -76,8 +76,8 @@ py_library(
     deps = [
         ":config_util",
         ":retry_util",
-        "@pypi//ollama",
         "@pypi//loguru",
+        "@pypi//ollama",
         "@pypi//pydantic",
     ],
 )
@@ -85,12 +85,12 @@ py_library(
 py_test(
     name = "test_ollama_util",
     srcs = ["tests/test_ollama_util.py"],
+    tags = ["exclusive"],
     deps = [
         ":config_util",
         ":ollama_util",
         ":test_util",
     ],
-    tags = ["exclusive"],
 )
 
 py_library(
@@ -113,14 +113,14 @@ py_binary(
     srcs = ["src/main_cli.py"],
     main = "src/main_cli.py",
     deps = [
-        ":private_query_lib",
         ":chroma_util",
         ":config_util",
         ":ollama_util",
+        ":private_query_lib",
         ":resource_util",
-        "@pypi//typer",
         "@pypi//loguru",
         "@pypi//pydantic",
+        "@pypi//typer",
     ],
 )
 
@@ -128,7 +128,7 @@ py_pex_binary(
     name = "private_query_pex",
     binary = ":private_query_cli",
     inject_env = {
-        "PEX_UNZIP": "1"
+        "PEX_UNZIP": "1",
     },
     tags = ["manual"],
 )
@@ -160,15 +160,15 @@ py_test(
     name = "test_private_query",
     srcs = ["tests/test_private_query.py"],
     data = glob(["tests/data/*.txt"]),
+    tags = ["exclusive"],
     deps = [
         ":chroma_util",
         ":config_util",
         ":ollama_util",
         ":private_query_lib",
-        ":test_util",
         ":resource_util",
+        ":test_util",
     ],
-    tags = ["exclusive"],
 )
 
 py_library(
@@ -178,12 +178,12 @@ py_library(
         ":config_util",
         ":retry_util",
         "@pypi//chromadb",
+        "@pypi//loguru",
         "@pypi//more_itertools",
+        "@pypi//pydantic",
         "@pypi//sentence_transformers",
         "@pypi//torch",
         "@pypi//transformers",
-        "@pypi//loguru",
-        "@pypi//pydantic",
     ],
 )
 

@@ -1,3 +1,5 @@
+"""A module configuring linters for bazel to use."""
+
 load("@aspect_rules_lint//lint:bandit.bzl", "lint_bandit_aspect")
 load("@aspect_rules_lint//lint:buildifier.bzl", "lint_buildifier_aspect")
 load("@aspect_rules_lint//lint:ruff.bzl", "lint_ruff_aspect")

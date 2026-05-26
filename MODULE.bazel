@@ -37,9 +37,6 @@ uv.declare_hub(
     hub_name = "pypi",
 )
 uv.project(
-    hub_name = "pypi",
-    lock = "//:uv.lock",
-    pyproject = "//:pyproject.toml",
     default_build_dependencies = [
         "setuptools",
         "wheel",
@@ -48,6 +45,9 @@ uv.project(
         "build",
         "puccinialin",
         "cython",
-    ]
+    ],
+    hub_name = "pypi",
+    lock = "//:uv.lock",
+    pyproject = "//:pyproject.toml",
 )
 use_repo(uv, "pypi")
