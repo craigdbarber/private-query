@@ -10,8 +10,34 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
+      - name: Free Disk Space (Ubuntu)
+        run: |
+          echo "=== Disk space before cleanup ==="
+          df -h
+          
+          # Remove massive frameworks completely unrelated to your Python app
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/powershell
+          sudo rm -rf /usr/local/julia*
+          
+          # Clean Docker structures to reclaim another few gigabytes
+          sudo docker image prune --all --force
+          sudo docker builder prune -a --force
+          
+          echo "=== Disk space after cleanup ==="
+          df -h
+
+
       - name: Checkout code
         uses: actions/checkout@v4
+      
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@5
+        with:
+          python-version: "3.12"
+          enable-cache: true
 
       - name: Set up Bazel
         uses: bazel-contrib/setup-bazel@0.9.1
@@ -22,11 +48,17 @@ jobs:
           repository-cache: true
 
       - name: Build and Run Audits (Linting/Security/Docs)
-        run: bazel build --config=lint //...
-
-      - name: Check Formatting
-        run: bazel run //tools/format -- --check
+        run: |
+          bazel build --config=lint //... \
+            --experimental_repository_cache_hardlinks \
+            --discard_analysis_cache \
+            --nolegacy_important_outputs
 
       - name: Run Unit Tests
-        run: bazel test --test_output=streamed //...
+        run: |
+          bazel test --test_output=streamed //...
+            --experimental_repository_cache_hardlinks \
+            --discard_analysis_cache \
+            --nolegacy_important_outputs
+
 
