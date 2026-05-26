@@ -3,15 +3,14 @@ name = "private-query"
 version = "0.1.0"
 description = "A solution for embedding private datasets into vector stores and querying against local LLMs."
 readme = "README.md"
-requires-python = ">=3.12,<3.13"
+requires-python = ">=3.12,<3.13" # torch currently only supports <=3.12
 dependencies = [
-    "chromadb",
-    "pyyaml",
-    "more-itertools",
-    "torch",
-    "polars",
-    "ollama",
-    "sentence-transformers",
+    "chromadb>=1.5.9",
+    "pyyaml>=6.0.3",
+    "more-itertools>=11.0.2",
+    "torch>=2.10.0",
+    "ollama>=0.6.2",
+    "sentence-transformers>=5.5.0",
     "transformers>=5.8.1",
     "psutil>=7.2.2",
     "pypdf>=6.11.0",
@@ -26,16 +25,16 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "private-query",
-    "pytest",
-    "ruff",
-    "bandit",
-    "wheel",
-    "maturin",
-    "hatchling",
-    "setuptools",
+    "private-query", # included to work well with bazel deps
+    "pytest>=9.0.3",
+    "ruff>=0.15.13",
+    "bandit>=1.9.4",
+    "wheel>=0.47.0",
+    "maturin>=1.13.3",
+    "hatchling>=1.29.0",
+    "setuptools>=82.0.1",
     "cython>=3.2.4",
-    "puccinialin",
+    "puccinialin>=0.1.12",
     "ty>=0.0.39",
     "taskipy>=1.2.1",
     "coverage>=7.14.0",
