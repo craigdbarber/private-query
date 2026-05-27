@@ -4,7 +4,7 @@ requires = [ "hatchling" ]
 
 [project]
 name = "private-query"
-version = "0.1.0"
+version = "0.1.1"
 description = """\
     A solution for embedding private datasets into vector stores and querying against \
     local LLMs.\
