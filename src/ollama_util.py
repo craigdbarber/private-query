@@ -57,16 +57,15 @@ class OllamaClient:
                 lambda: Client(host=str(host), **kwargs)
             )
         except Exception as e:
-            logger.error(
-                f"Failed to establish ollama client connection with host: {host}"
-            )
-            raise ConnectionError("Failed to establish ollama client connection") from e
+            err_msg = f"Failed to establish Ollama client connection with host: {host}"
+            logger.error(err_msg)
+            raise ConnectionError(err_msg) from e
 
         try:
             logger.info(f"Pulling model: {self._model}")
             random_exponential_retry(lambda: self._client.pull(self._model))
         except Exception as e:
-            err_msg = f"Failed to pull model: {self._model} "
+            err_msg = f"Failed to pull model: {self._model}"
             logger.error(err_msg)
             raise ConnectionError(err_msg) from e
 
@@ -78,8 +77,16 @@ class OllamaClient:
 
         Returns: Whether the specified model is loaded.
 
+        Raises:
+            ConnectionError: If the connection to Ollama failed.
+
         """
-        models = self._client.list().models
+        try:
+            models = random_exponential_retry(lambda: self._client.list().models)
+        except Exception as e:
+            err_msg = "Failed to list models"
+            logger.error(err_msg)
+            raise ConnectionError(err_msg) from e
         return any(m.model == model for m in models if m is not None)
 
     def execute_prompt(self, prompt: str) -> str:
@@ -87,11 +94,22 @@ class OllamaClient:
 
         Args:
             prompt: The prompt to be executed.
+
         Returns: The model's response.
+
+        Raises:
+            ConnectionError: If the connection to Ollama failed.
 
         """
         logger.debug(f"Executing ollama prompt: {prompt}")
-        response = self._client.chat(
-            model=self._model, messages=[{"role": "user", "content": prompt}]
-        )
+        try:
+            response = random_exponential_retry(
+                lambda: self._client.chat(
+                    model=self._model, messages=[{"role": "user", "content": prompt}]
+                )
+            )
+        except Exception as e:
+            err_msg = "Failed executing prompt."
+            logger.error(err_msg)
+            raise ConnectionError(err_msg) from e
         return response["message"]["content"]

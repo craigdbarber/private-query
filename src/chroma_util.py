@@ -114,19 +114,9 @@ class ChromaClient:
         self._model_cache_dir = config.model_cache_directory
         embedding_model = config.embedding_model
         embedding_model_revision = config.embedding_model_revision
-        try:
-            logger.info(f"Retrieving embedding model: {embedding_model}")
-            self._embedding_func = random_exponential_retry(
-                lambda: _get_embedding_function(
-                    embedding_model,
-                    self._model_cache_dir,
-                    embedding_model_revision,
-                )
-            )
-        except Exception as e:
-            err_msg = f"Failed to retrieve embedding model: {embedding_model}"
-            logger.error(err_msg)
-            raise ConnectionError(err_msg) from e
+        self._embedding_func = _get_embedding_function(
+            embedding_model, self._model_cache_dir, embedding_model_revision
+        )
 
         # load the tokenizer
         model_path = f"sentence-transformers/{self._embedding_func.model_name}"
@@ -158,15 +148,25 @@ class ChromaClient:
             distance_func: The name of the distance function to utilize.
         Returns: The exising or created collection.
 
+        Raises:
+            ConnectionError: If the chroma connection failed.
+
         """
         metadata: dict[str, str] = {}
         if distance_func:
             metadata["hnsw:space"] = distance_func
-        return self._client.get_or_create_collection(
-            name=name,
-            embedding_function=self._embedding_func,  # type: ignore
-            metadata=metadata or None,
-        )
+        try:
+            return random_exponential_retry(
+                lambda: self._client.get_or_create_collection(
+                    name=name,
+                    embedding_function=self._embedding_func,  # type: ignore
+                    metadata=metadata or None,
+                )
+            )
+        except Exception as e:
+            err_msg = f"Failed to get collection: {name}"
+            logger.error(err_msg)
+            raise ConnectionError(err_msg) from e
 
     def is_alive(self) -> bool:
         """Return whether the client connection is alive."""
@@ -193,17 +193,27 @@ class ChromaClient:
             metadatas: The metadata associated with the documents.
             ids: The ids associated with the documents.
 
+        Raises:
+            ConnectionError: If the ChromaDB connection failed.
+
         """
         collection = self.get_or_create_collection(collection_name)
         document_indices = list(range(len(documents)))
         for batch in batched(document_indices, self._client.get_max_batch_size()):
             start_idx = batch[0]
             end_idx = batch[-1] + 1
-            collection.upsert(
-                ids=ids[start_idx:end_idx],
-                documents=documents[start_idx:end_idx],
-                metadatas=metadatas[start_idx:end_idx],  # type: ignore # noqa: E501
-            )
+            try:
+                random_exponential_retry(
+                    lambda start_idx=start_idx, end_idx=end_idx: collection.upsert(
+                        ids=ids[start_idx:end_idx],
+                        documents=documents[start_idx:end_idx],
+                        metadatas=metadatas[start_idx:end_idx],  # type: ignore # noqa: E501
+                    )
+                )
+            except Exception as e:
+                err_msg = f"Failed to upsert for collection: {collection_name}"
+                logger.error(err_msg)
+                raise ConnectionError(err_msg) from e
 
     def chunk_text_by_tokens(
         self, text: str, chunk_size: int = 256, overlap: int = 32
@@ -256,15 +266,26 @@ def _get_embedding_function(
 
     Returns: The embedding function for the specified model name.
 
+    Raises:
+        ConnectionError: If the connection failed to the model repository.
+
     """
     kwargs: dict[str, Any] = {}
     system_device = torch.accelerator.current_accelerator(check_available=True)
     if system_device:
         kwargs["device"] = str(system_device)
-    return embedding_functions.SentenceTransformerEmbeddingFunction(
-        model_name=model,
-        token=False,
-        cache_folder=model_cache_dir,
-        revision=model_revision,
-        **kwargs,
-    )
+    try:
+        logger.info(f"Retrieving embedding model: {model}")
+        return random_exponential_retry(
+            lambda: embedding_functions.SentenceTransformerEmbeddingFunction(
+                model_name=model,
+                token=False,
+                cache_folder=model_cache_dir,
+                revision=model_revision,
+                **kwargs,
+            )
+        )
+    except Exception as e:
+        err_msg = f"Failed to retrieve embedding model: {model}"
+        logger.error(err_msg)
+        raise ConnectionError(err_msg) from e
