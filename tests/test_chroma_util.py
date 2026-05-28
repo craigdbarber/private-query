@@ -21,7 +21,7 @@ def suite_setup_teardown(
     tmp_path_factory: pytest.TempPathFactory,
 ) -> Generator[_ChromaSessionData, None, None]:
     """Set up chroma client for test session."""
-    # suite setup
+    # using tmp_path_factory as tmp_path won't work for session fixture
     tmp_persist_dir = tmp_path_factory.mktemp("persist_dir")
     tmp_cache_dir = tmp_path_factory.mktemp("cache_dir")
     tmp_config_dir = tmp_path_factory.mktemp("config")
@@ -81,16 +81,14 @@ def test_batched_upsert(chroma_session_data: _ChromaSessionData):
     assert results
     results_docs = results["documents"]
     assert results_docs
-    assert [
-        str(doc.encode(encoding="UTF-8")) for doc in results_docs
-    ].sort() == docs.sort()
+    assert sorted([str(doc) for doc in results_docs]) == sorted(docs)
     results_ids = results["ids"]
     assert results_ids
-    assert results_ids.sort() == ids.sort()
+    assert sorted(results_ids) == sorted(ids)
     results_metadatas = results["metadatas"]
     assert results_metadatas
-    assert results_metadatas.sort(key=lambda d: d["id"]) == metadatas.sort(
-        key=lambda d: d["id"]
+    assert sorted(results_metadatas, key=lambda d: d["id"]) == sorted(
+        metadatas, key=lambda d: d["id"]
     )
 
 

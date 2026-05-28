@@ -5,7 +5,6 @@ import os
 os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
 
 import logging
-import sys
 from typing import Any, Literal
 
 import torch
@@ -23,6 +22,8 @@ from transformers import (
 )
 
 from retry_util import random_exponential_retry
+
+_MAX_TOKENIZATION_LIMIT = 1_000_000  # A sensible token limit for the tokenizer
 
 
 class LocalDbConfig(BaseModel):
@@ -159,7 +160,7 @@ class ChromaClient:
             return random_exponential_retry(
                 lambda: self._client.get_or_create_collection(
                     name=name,
-                    embedding_function=self._embedding_func,  # type: ignore
+                    embedding_function=self._embedding_func,  # ty: ignore # type: ignore
                     metadata=metadata or None,
                 )
             )
@@ -232,7 +233,13 @@ class ChromaClient:
         retrieved.
 
         """
-        self._tokenizer.model_max_length = sys.maxsize
+        self._tokenizer.model_max_length = _MAX_TOKENIZATION_LIMIT
+        # tokenization safety rail assuming ~4 chars per token average
+        if len(text) > _MAX_TOKENIZATION_LIMIT * 10:
+            err_msg = f"Input text is too large for tokenization safety rails: len: \
+                {len(text)}"
+            logger.error(err_msg)
+            raise ValueError(err_msg)
         tokens = self._tokenizer.encode(
             text, add_special_tokens=False, truncation=False
         )

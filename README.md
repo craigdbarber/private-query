@@ -25,7 +25,7 @@
 - [ChromaDB](https://www.trychroma.com/products/chromadb): Used for privately storing and querying data.
 - [Bazel](https://bazel.build/docs): Used for building and testing.
 - [uv](https://docs.astral.sh/uv/): Used for package and Python environment management.
-- [Python](https://www.python.org): Version `3.12` is required (for `torch` compatibility).
+- [Python](https://www.python.org): Version `3.13`.
 
 ## Setup
 

@@ -9,17 +9,19 @@ bazel_dep(name = "aspect_bazel_lib", version = "2.22.0")
 bazel_dep(name = "rules_python", version = "1.1.0")
 bazel_dep(name = "buildifier_prebuilt", version = "8.5.1")
 
+PYTHON_VERSION="3.13"
+
 # Setup hermetic Python toolchain using aspect_rules_py
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
 python.toolchain(
     is_default = True,
-    python_version = "3.12",
+    python_version = PYTHON_VERSION,
 )
 
 interpreters = use_extension("@aspect_rules_py//py/unstable:extension.bzl", "python_interpreters")
 interpreters.toolchain(
     is_default = True,
-    python_version = "3.12",
+    python_version = PYTHON_VERSION,
 )
 use_repo(interpreters, "python_interpreters")
 
@@ -43,7 +45,6 @@ uv.project(
         "maturin",
         "hatchling",
         "build",
-        "puccinialin",
         "cython",
     ],
     hub_name = "pypi",

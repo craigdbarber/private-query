@@ -82,7 +82,7 @@ def test_embed_documents(pq_session_data: _PrivateQuerySessionData):
         assert str(doc.encode(encoding="UTF-8"))
     result_ids = result["ids"]
     assert result_ids
-    assert ids.sort() == result_ids.sort()
+    assert sorted(ids) == sorted(result_ids)
 
 
 def test_process_prompt(pq_session_data: _PrivateQuerySessionData):
@@ -101,7 +101,3 @@ def test_process_prompt(pq_session_data: _PrivateQuerySessionData):
         collection_name=collection_name,
     )
     assert response
-
-
-if __name__ == "__main__":
-    pytest.main()
