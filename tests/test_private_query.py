@@ -29,6 +29,7 @@ def suite_setup_teardown(
 
     # setup config
     ollama_host = "localhost:11434"
+    collection_name = "private_query_test_collection"
     tmp_persist_dir = tmp_path_factory.mktemp("persist_dir")
     tmp_cache_dir = tmp_path_factory.mktemp("cache_dir")
     tmp_config_dir = tmp_path_factory.mktemp("config")
@@ -58,7 +59,8 @@ ollama:
     ollama = OllamaClient(ollama_config)
 
     yield _PrivateQuerySessionData(
-        PrivateQuery(chroma=chroma, ollama=ollama), chroma=chroma
+        PrivateQuery(chroma=chroma, ollama=ollama, collection_name=collection_name),
+        chroma=chroma,
     )
 
 
@@ -67,12 +69,9 @@ def test_embed_documents(pq_session_data: _PrivateQuerySessionData):
     test_data_dir = resolve_directory("tests/data")
     test_data_files = list(test_data_dir.glob("*"))
     assert test_data_files and len(test_data_files) > 0
-    collection_name = "test_embed_documents"
 
-    ids = pq_session_data.private_query.embed_documents(
-        collection_name=collection_name, document_paths=test_data_files
-    )
-    collection = pq_session_data.chroma.get_or_create_collection(collection_name)
+    ids = pq_session_data.private_query.embed_documents(document_paths=test_data_files)
+    collection = pq_session_data.private_query._semantic_collection  # noqa # pylint: disable=protected-access
     result = collection.get(ids)
     result_docs = result["documents"]
 
@@ -90,14 +89,38 @@ def test_process_prompt(pq_session_data: _PrivateQuerySessionData):
     test_data_dir = resolve_directory("tests/data")
     test_txt_files = list(test_data_dir.glob("*.txt"))
     assert test_txt_files and len(test_txt_files) > 0
-    collection_name = "test_process_prompt"
 
-    pq_session_data.private_query.embed_documents(
-        collection_name=collection_name, document_paths=test_txt_files
-    )
+    pq_session_data.private_query.embed_documents(document_paths=test_txt_files)
 
     response = pq_session_data.private_query.process_prompt(
-        prompt="Who was sherlock holmes?",
-        collection_name=collection_name,
+        prompt="Who was sherlock holmes?"
     )
     assert response
+
+
+def test_system_prompt(pq_session_data: _PrivateQuerySessionData):
+    """Test the system prompt works correctly."""
+    test_data_dir = resolve_directory("tests/data")
+    test_txt_files = list(test_data_dir.glob("*.txt"))
+    assert test_txt_files and len(test_txt_files) > 0
+
+    pq_session_data.private_query.embed_documents(document_paths=test_txt_files)
+
+    response = pq_session_data.private_query.process_prompt("who was watson?")
+    assert "References" in response
+
+
+def test_merge_and_slice_document():
+    """Test _merge_and_slice_document."""
+    from private_query import _merge_and_slice_document
+
+    text = "01234569abcdefghij"
+    path = "test.txt"
+    # Overlapping: (0,5) and (3,8) -> (0,8)
+    # Disjoint: (10, 15)
+    # Out of bounds: (-5,2) -> (0,2)
+    bounds = [(0, 5), (3, 8), (10, 15), (-5, 2)]
+    slices = _merge_and_slice_document(path=path, char_bounds=bounds, text=text)
+    assert len(slices) == 2
+    assert "character_boundaries: (0-8)" in slices[0]
+    assert "character_boundaries: (10-15)" in slices[1]

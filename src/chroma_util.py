@@ -5,6 +5,7 @@ import os
 os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
 
 import logging
+from dataclasses import dataclass
 from typing import Any, Literal
 
 import torch
@@ -16,10 +17,7 @@ from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunct
 from loguru import logger
 from more_itertools import batched
 from pydantic import BaseModel, Field, HttpUrl
-from transformers import (
-    AutoTokenizer,
-    PreTrainedTokenizerBase,
-)
+from transformers import AutoTokenizer, BatchEncoding, PreTrainedTokenizerBase
 
 from retry_util import random_exponential_retry
 
@@ -115,7 +113,7 @@ class ChromaClient:
         self._model_cache_dir = config.model_cache_directory
         embedding_model = config.embedding_model
         embedding_model_revision = config.embedding_model_revision
-        self._embedding_func = _get_embedding_function(
+        self._embedding_func = _load_embedding_function(
             embedding_model, self._model_cache_dir, embedding_model_revision
         )
 
@@ -139,10 +137,23 @@ class ChromaClient:
             logger.error(err_msg)
             raise ConnectionError(err_msg) from e
 
+    def get_or_create_collection_no_embedding(self, name: str) -> Collection:
+        """Get or create a collection without a configured embedding function.
+
+        Args:
+            name: The name of the collection.
+        Returns: The existing or created collection.
+
+        Raises:
+            ConnectionError: If the chroma connection failed.
+
+        """
+        return self._get_or_create_collection(name)
+
     def get_or_create_collection(
         self, name: str, distance_func: str | None = None
     ) -> Collection:
-        """Get or create a collection.
+        """Get or create a collection using the default embedding function.
 
         Args:
             name: The name of the collection.
@@ -153,16 +164,22 @@ class ChromaClient:
             ConnectionError: If the chroma connection failed.
 
         """
-        metadata: dict[str, str] = {}
+        return self._get_or_create_collection(name, distance_func, self._embedding_func)
+
+    def _get_or_create_collection(
+        self,
+        name: str,
+        distance_func: str | None = None,
+        embedding_func: SentenceTransformerEmbeddingFunction | None = None,
+    ) -> Collection:
+        kwargs: dict[str, Any] = {}
+        if embedding_func is not None:
+            kwargs["embedding_function"] = embedding_func
         if distance_func:
-            metadata["hnsw:space"] = distance_func
+            kwargs["metadata"] = {"hnsw:space": distance_func}
         try:
             return random_exponential_retry(
-                lambda: self._client.get_or_create_collection(
-                    name=name,
-                    embedding_function=self._embedding_func,  # ty: ignore # type: ignore
-                    metadata=metadata or None,
-                )
+                lambda: self._client.get_or_create_collection(name=name, **kwargs)
             )
         except Exception as e:
             err_msg = f"Failed to get collection: {name}"
@@ -180,25 +197,27 @@ class ChromaClient:
 
     def batched_upsert(
         self,
-        collection_name: str,
+        collection: Collection,
         documents: list[str],
-        metadatas: list[dict],
         ids: list[str],
+        metadatas: list[dict[str, Any]] | None = None,
+        embeddings: list[list[float]] | None = None,
     ) -> None:
         """Perform batched upserts of the specified documents into the specified
         collection.
 
         Args:
-            collection_name: The name of the collection to be modified.
+            collection: The collection to be modified.
             documents: The documents to be upserted.
-            metadatas: The metadata associated with the documents.
             ids: The ids associated with the documents.
+            metadatas: If specified, the metadata associated with the documents.
+            embeddings: If specified, the embeddings to be associated with the
+            documents.
 
         Raises:
             ConnectionError: If the ChromaDB connection failed.
 
         """
-        collection = self.get_or_create_collection(collection_name)
         document_indices = list(range(len(documents)))
         for batch in batched(document_indices, self._client.get_max_batch_size()):
             start_idx = batch[0]
@@ -208,17 +227,31 @@ class ChromaClient:
                     lambda start_idx=start_idx, end_idx=end_idx: collection.upsert(
                         ids=ids[start_idx:end_idx],
                         documents=documents[start_idx:end_idx],
-                        metadatas=metadatas[start_idx:end_idx],  # type: ignore # noqa: E501
+                        metadatas=metadatas[start_idx:end_idx]  # ty: ignore[invalid-argument-type]
+                        if metadatas is not None
+                        else None,
+                        embeddings=embeddings[start_idx:end_idx]  # ty: ignore[invalid-argument-type]
+                        if embeddings is not None
+                        else None,
                     )
                 )
             except Exception as e:
-                err_msg = f"Failed to upsert for collection: {collection_name}"
+                err_msg = f"Failed to upsert for collection: {collection.name}"
                 logger.error(err_msg)
                 raise ConnectionError(err_msg) from e
 
+    @dataclass
+    class TextChunk:
+        """The result of data chunking."""
+
+        text: str
+        start_token: int
+        char_start: int
+        char_end: int
+
     def chunk_text_by_tokens(
         self, text: str, chunk_size: int = 256, overlap: int = 32
-    ) -> list[str]:
+    ) -> list[TextChunk]:
         """Split the specified text into overlapping chunks of tokens for better LLM
         performance. Tailors the tokenization method to the specified embedding model.
 
@@ -240,31 +273,45 @@ class ChromaClient:
                 {len(text)}"
             logger.error(err_msg)
             raise ValueError(err_msg)
-        tokens = self._tokenizer.encode(
-            text, add_special_tokens=False, truncation=False
+
+        encoding: BatchEncoding = self._tokenizer(
+            text,
+            add_special_tokens=False,
+            truncation=False,
+            return_offsets_mapping=True,
         )
-        chunks: list[str] = []
+        tokens = encoding["input_ids"]
+        offsets: list[tuple[int, int]] = encoding["offset_mapping"]
+        chunks: list[ChromaClient.TextChunk] = []
         start_index = 0
         while start_index < len(tokens):
             end_index = start_index + chunk_size
             chunk_tokens = tokens[start_index:end_index]
+            chunk_offsets = offsets[start_index:end_index]
             tokens_text = self._tokenizer.decode(
-                chunk_tokens, clean_up_tokenization_spaces=True
+                chunk_tokens,
+                clean_up_tokenization_spaces=True,
+                skip_special_tokens=True,
             )
             if tokens_text is not None and tokens_text:
-                chunks.append(str(tokens_text))
+                chunks.append(
+                    ChromaClient.TextChunk(
+                        text=str(tokens_text),
+                        start_token=start_index,
+                        char_start=chunk_offsets[0][0],
+                        char_end=chunk_offsets[-1][1],
+                    )
+                )
             start_index += chunk_size - overlap
             if end_index >= len(tokens):
                 break
-
-        # drop empty chunks
-        return [chunk for chunk in chunks if chunk]  # say that ten times fast ;)
+        return chunks
 
 
-def _get_embedding_function(
+def _load_embedding_function(
     model: str, model_cache_dir: str, model_revision: str
 ) -> SentenceTransformerEmbeddingFunction:
-    """Create an embedding function with the given model name.
+    """Load an embedding function with the given model name.
 
     Args:
         model: The name of the embedding model to be used.

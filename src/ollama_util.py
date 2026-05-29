@@ -89,11 +89,15 @@ class OllamaClient:
             raise ConnectionError(err_msg) from e
         return any(m.model == model for m in models if m is not None)
 
-    def execute_prompt(self, prompt: str) -> str:
+    def execute_prompt(
+        self, prompt: str, system_prompt: str = "", context: str = ""
+    ) -> str:
         """Execute the specified prompt against the configured model.
 
         Args:
             prompt: The prompt to be executed.
+            system_prompt: The system prompt.
+            context: The context to be utilized.
 
         Returns: The model's response.
 
@@ -101,11 +105,25 @@ class OllamaClient:
             ConnectionError: If the connection to Ollama failed.
 
         """
-        logger.debug(f"Executing ollama prompt: {prompt}")
+        logger.debug(
+            f"Executing ollama chat, system_prompt: {system_prompt}\ncontext: \
+                {context}\nprompt: {prompt}"
+        )
         try:
             response = random_exponential_retry(
                 lambda: self._client.chat(
-                    model=self._model, messages=[{"role": "user", "content": prompt}]
+                    model=self._model,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {
+                            "role": "user",
+                            "content": f"""
+Context:{context}\n\nQuestion: {prompt}
+
+Reminder: Follow the Instructions from the System Prompt.
+""",
+                        },
+                    ],
                 )
             )
         except Exception as e:

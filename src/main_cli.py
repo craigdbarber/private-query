@@ -7,7 +7,7 @@ from typing import Annotated
 
 import typer
 from loguru import logger
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from chroma_util import ChromaClient, ChromaClientConfig
 from config_util import load_yaml_config
@@ -30,11 +30,16 @@ app = typer.Typer(
 @dataclass
 class _SessionData:
     private_query: PrivateQuery
-    collection_name: str
+
+
+class _RetrievalSettings(BaseModel):
+    n_results: int = Field(default=10, ge=1)
+    char_radius: int = Field(default=1500, ge=0)
 
 
 class _Settings(BaseModel):
     collection_name: str
+    retrieval: _RetrievalSettings
     chroma: ChromaClientConfig
     ollama: OllamaClientConfig
 
@@ -48,10 +53,16 @@ def _initialize_session(config_path: Path) -> _SessionData:
     logger.info("[SESSION INIT]: Loading Ollama client...")
     ollama = OllamaClient(settings.ollama)
     logger.info("[SESSION INIT]: Loading Private Query...")
-    private_query = PrivateQuery(chroma, ollama)
+    retrieval_settings = settings.retrieval
+    private_query = PrivateQuery(
+        chroma=chroma,
+        ollama=ollama,
+        collection_name=collection_name,
+        n_results=retrieval_settings.n_results,
+        char_radius=retrieval_settings.char_radius,
+    )
     return _SessionData(
         private_query=private_query,
-        collection_name=collection_name,
     )
 
 
@@ -116,9 +127,7 @@ def load(
     else:
         files.append(resolved_resource.resolve())
     session_data: _SessionData = ctx.obj
-    session_data.private_query.embed_documents(
-        collection_name=session_data.collection_name, document_paths=files
-    )
+    session_data.private_query.embed_documents(document_paths=files)
 
 
 @app.command()
@@ -129,11 +138,7 @@ def query(
     """Excute the specified prompt."""
     session_data: _SessionData = ctx.obj
     print("Thinking...\n")
-    print(
-        session_data.private_query.process_prompt(
-            prompt=prompt, collection_name=session_data.collection_name
-        )
-    )
+    print(session_data.private_query.process_prompt(prompt=prompt))
 
 
 @app.command("help")
