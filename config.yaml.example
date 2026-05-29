@@ -1,6 +1,11 @@
 settings:
   # the name of the vector db collection to be used.
   collection_name: "private-query-collection"
+  retrieval:
+    # the number of results to be retrieved when querying chromadb.
+    n_results: 10
+    # the character radius to be used for constructing contexts for prompts.
+    char_radius: 1500
   chroma:
     # The embedding model to use.
     embedding_model: "all-MiniLM-L6-v2"

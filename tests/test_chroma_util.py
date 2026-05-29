@@ -53,13 +53,13 @@ def test_get_or_create_collection(chroma_session_data: _ChromaSessionData):
     """Test get_or_create_collection."""
     client = chroma_session_data.client
     collection = client.get_or_create_collection("test_collection")
-    assert collection
+    assert collection is not None
     assert collection.name == "test_collection"
     other_collection = client.get_or_create_collection("other_collection")
-    assert other_collection
+    assert other_collection is not None
     assert other_collection.name == "other_collection"
     same_collection = client.get_or_create_collection("test_collection")
-    assert same_collection
+    assert same_collection is not None
     assert same_collection.name == "test_collection"
 
 
@@ -75,8 +75,13 @@ def test_batched_upsert(chroma_session_data: _ChromaSessionData):
         metadatas.append({"id": f"{index}"})
         ids.append(str(index))
         index += 1
-    client.batched_upsert("test_collection1", docs, metadatas, ids)
     collection = client.get_or_create_collection("test_collection1")
+    client.batched_upsert(
+        collection=collection,
+        documents=docs,
+        ids=ids,
+        metadatas=metadatas,
+    )
     results = collection.get(ids=ids)
     assert results
     results_docs = results["documents"]
@@ -105,7 +110,44 @@ def test_chunk_text_by_tokens(chroma_session_data: _ChromaSessionData):
         "river",
     ]
     document = " ".join(random.choices(word_pool, k=1000))  # noqa: S311
-    chunks = chroma_session_data.client.chunk_text_by_tokens(document)
+    chunks: list[ChromaClient.TextChunk] = (
+        chroma_session_data.client.chunk_text_by_tokens(document)
+    )
     assert chunks
     assert len(chunks) != 0
-    assert all(chunk for chunk in chunks)
+    assert all(chunk.text for chunk in chunks)
+    last_chunk: ChromaClient.TextChunk | None = None
+    for chunk in chunks:
+        if last_chunk is None:
+            continue
+        assert chunk.start_token > last_chunk.start_token
+        assert chunk.char_start > last_chunk.char_start
+        assert chunk.char_end > last_chunk.char_end
+        last_chunk = chunk
+
+
+def test_no_embedding_collection(chroma_session_data: _ChromaSessionData):
+    """Test using a collection without an embedding function."""
+    client = chroma_session_data.client
+    collection = client.get_or_create_collection_no_embedding(
+        "test_collection_no_embedding"
+    )
+    assert collection is not None
+    assert collection.name == "test_collection_no_embedding"
+    doc = "test document text."
+    doc_id = "test_id"
+    doc_embedding = [0.0]
+    client.batched_upsert(
+        collection=collection, documents=[doc], ids=[doc_id], embeddings=[doc_embedding]
+    )
+    results = collection.get(ids=[doc_id])
+    assert results
+    result_docs = results["documents"]
+    assert result_docs is not None
+    assert result_docs
+    assert result_docs[0] == doc
+
+    result_ids = results["ids"]
+    assert result_ids is not None
+    assert result_ids
+    assert result_ids[0] == doc_id

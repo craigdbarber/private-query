@@ -57,11 +57,11 @@ graph TD
 ### 4.2. Core Logic Layer
 - **`private_query.py`**: The central orchestrator. It defines the `PrivateQuery` class which:
     - Coordinates document ingestion by extracting text via `transformer_util.py`.
-    - Manages embedding and storage via `chroma_util.py`.
-    - Orchestrates the RAG flow: retrieving context from the vector store and generating responses via `ollama_util.py`.
+    - Manages dual-collection storage: a **Semantic Collection** for vector embeddings and a **Raw Collection** for full-text retrieval.
+    - Orchestrates the RAG flow: retrieving semantic chunks, expanding them using a configurable character radius, and merging overlapping sections to provide continuous, high-fidelity context to the LLM via `ollama_util.py`.
 
 ### 4.3. Infrastructure & Utility Layer
-- **`chroma_util.py`**: Encapsulates interactions with the Chroma vector database. Handles collection management, document batching, and token-based text chunking using HuggingFace tokenizers.
+- **`chroma_util.py`**: Encapsulates interactions with the Chroma vector database. Handles collection management, document batching, and token-based text chunking with precise character offset tracking.
 - **`ollama_util.py`**: Manages the connection to local LLMs via Ollama. It ensures the required model is pulled and handles prompt execution.
 - **`transformer_util.py`**: Provides specialized extractors for `.pdf`, `.docx`, and `.txt` files, abstracting file type complexity from the core logic.
 - **`resource_util.py`**: A specialized utility for resolving file paths across varied execution environments, specifically handling Bazel's runfiles system.
@@ -90,6 +90,8 @@ graph TD
     - Embeddings are stored in `ChromaDB`.
 2. **Querying**:
     - User submits a prompt.
-    - `PrivateQuery` queries `ChromaDB` for the most relevant context chunks.
-    - A context-augmented prompt is constructed.
+    - `PrivateQuery` performs a semantic search to find the most relevant document chunks.
+    - For each chunk, it retrieves a surrounding "window" of text from the **Raw Collection** using a configurable character radius.
+    - Overlapping windows from the same document are merged to ensure the context provided to the LLM is continuous and non-redundant.
+    - A context-augmented prompt is constructed using these high-fidelity source blocks.
     - `Ollama` executes the prompt and returns the final answer.

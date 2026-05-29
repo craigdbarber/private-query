@@ -106,6 +106,9 @@ private-query query "your query"
 This section contains information for modifying the project's configuration file to suit your needs. See [config.yaml.example](config.yaml.example) for a complete template.
 
 * `collection_name`: The unique name for the ChromaDB collection. This allows for isolated datasets.
+* `retrieval`: Configuration for the context retrieval strategy.
+    * `n_results`: The number of semantically similar chunks to retrieve from the vector store.
+    * `char_radius`: The number of characters to retrieve around each identified chunk to provide additional context to the LLM.
 * `chroma`: Configuration for the ChromaDB vector database.
     * `embedding_model`: The open-source embedding model used (via [Hugging Face](https://huggingface.co)).
     * `embedding_model_revision`: The specific revision of the model to be utilized.
